@@ -10,21 +10,29 @@ import {NgZorroAntdModule, NZ_I18N, zh_CN} from 'ng-zorro-antd';
 registerLocaleData(zh);
 
 import {AppComponent} from './app.component';
+import {QuickComponent} from './quick/quick.component';
+import {ClusterComponent} from './cluster/cluster.component';
+import {ProjectComponent} from './project/project.component';
 
-// const routes: Routes = [
-//   {path: '', loadChildren: './app.router.module#AppRouterModule', canActivate: [TokenService]},
-//   {path: 'login', loadChildren: './login/login.module#LoginModule'},
-// ];
+const routes: Routes = [
+  {path: '', component: QuickComponent},
+  {path: 'project', component: ProjectComponent},
+  {path: 'cluster', component: ClusterComponent},
+];
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    ClusterComponent,
+    ProjectComponent,
+    QuickComponent,
   ],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
     NgZorroAntdModule,
     HttpClientModule,
+    RouterModule.forRoot(routes, {useHash: true}),
   ],
   providers: [
     {provide: NZ_I18N, useValue: zh_CN}

@@ -1,5 +1,25 @@
-.logo {
-  height: 32px;
-  background: rgba(255, 255, 255, 0.2);
-  margin: 16px;
+nz-layout.main {
+  height: 100%;
+}
+
+nz-layout.container {
+  padding: 24px;
+}
+
+nz-sider.sider {
+  background: #fff;
+
+  & > ul {
+    height: 100%
+  }
+}
+
+nz-breadcrumb.breadcrumb {
+  margin: 16px 0;
+}
+
+nz-content.content {
+  background: #fff;
+  padding: 24px;
+  min-height: 280px;
 }
