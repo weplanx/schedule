@@ -1,3 +1,27 @@
-<p>
-  quick works!
-</p>
+<nz-page-header nzTitle="快速设置">
+  <nz-page-header-content>
+    <p>
+      Ant Design's design team preferred to design with the HSB color model, which makes it easier for
+      designers to have a clear psychological expectation of color when adjusting colors, as well as
+      facilitate communication in teams.
+    </p>
+    <nz-steps [nzCurrent]="step">
+      <nz-step nzTitle="类型"></nz-step>
+      <nz-step nzTitle="配置"></nz-step>
+      <nz-step nzTitle="反馈"></nz-step>
+    </nz-steps>
+
+    <div class="steps-content">{{index}}</div>
+    <div class="steps-action">
+      <button nz-button nzType="default" (click)="pre()" *ngIf="step > 0">
+        <span>Previous</span>
+      </button>
+      <button nz-button nzType="default" (click)="next()" *ngIf="step < 2">
+        <span>Next</span>
+      </button>
+      <button nz-button nzType="primary" (click)="done()" *ngIf="step === 2">
+        <span>Done</span>
+      </button>
+    </div>
+  </nz-page-header-content>
+</nz-page-header>
