@@ -4,6 +4,7 @@
     "codelyzer"
   ],
   "rules": {
+    "disable-next-line": true,
     "array-type": false,
     "arrow-parens": false,
     "deprecation": {
