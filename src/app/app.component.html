@@ -2,7 +2,16 @@
   <nz-layout>
     <nz-sider [nzWidth]="200" class="sider">
       <ul nz-menu [nzMode]="'inline'">
-        <li nz-menu-item>
+        <li nz-menu-item
+            [nzSelected]="nav==='/'"
+            routerLink="/">
+          <span title>
+            <i nz-icon type="thunderbolt"></i> 首页
+          </span>
+        </li>
+        <li nz-menu-item
+            [nzSelected]="nav==='/quick'"
+            routerLink="/quick">
           <span title>
             <i nz-icon type="thunderbolt"></i> 快速设置
           </span>
@@ -12,7 +21,11 @@
             <i nz-icon type="project"></i> 项目管理
           </span>
           <ul>
-            <li nz-menu-item>默认</li>
+            <li nz-menu-item
+                [nzSelected]="nav==='/project'"
+                routerLink="/project">
+              默认
+            </li>
           </ul>
         </li>
         <li nz-submenu>
@@ -20,7 +33,11 @@
             <i nz-icon type="cluster"></i> 集群管理
           </span>
           <ul>
-            <li nz-menu-item>默认</li>
+            <li nz-menu-item
+                [nzSelected]="nav==='/cluster'"
+                routerLink="/cluster">
+              默认
+            </li>
           </ul>
         </li>
       </ul>
