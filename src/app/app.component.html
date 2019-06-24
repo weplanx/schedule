@@ -1,21 +1,22 @@
 <nz-layout class="main">
+  <nz-header>
+    <div class="logo"></div>
+    <ul class="nav" nz-menu [nzTheme]="'dark'" [nzMode]="'horizontal'">
+      <li nz-menu-item
+          [nzSelected]="nav==='/'"
+          routerLink="/">
+        控制台
+      </li>
+      <li nz-menu-item
+          [nzSelected]="nav==='/quick'"
+          routerLink="/quick">
+        快速设置
+      </li>
+    </ul>
+  </nz-header>
   <nz-layout>
     <nz-sider [nzWidth]="200" class="sider">
       <ul nz-menu [nzMode]="'inline'">
-        <li nz-menu-item
-            [nzSelected]="nav==='/'"
-            routerLink="/">
-          <span title>
-            <i nz-icon type="thunderbolt"></i> 首页
-          </span>
-        </li>
-        <li nz-menu-item
-            [nzSelected]="nav==='/quick'"
-            routerLink="/quick">
-          <span title>
-            <i nz-icon type="thunderbolt"></i> 快速设置
-          </span>
-        </li>
         <li nz-submenu>
           <span title>
             <i nz-icon type="project"></i> 项目管理
