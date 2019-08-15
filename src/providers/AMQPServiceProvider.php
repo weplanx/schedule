@@ -4,9 +4,9 @@ namespace lumen\extra\providers;
 
 use Laravel\Lumen\Application;
 use Illuminate\Support\ServiceProvider;
-use lumen\extra\common\AuthFactory;
+use tidy\amqp\RabbitClient;
 
-class AuthServiceProvider extends ServiceProvider
+class AMQPServiceProvider extends ServiceProvider
 {
     /**
      * Register the service provider.
@@ -15,11 +15,11 @@ class AuthServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->singleton('auth', function (Application $app) {
+        $this->app->singleton('amqp', function (Application $app) {
             $config = $app->make('config')
-                ->get('jwt');
+                ->get('queue.connections.rabbitmq');
 
-            return new AuthFactory($config);
+            return new RabbitClient($config);
         });
     }
 }

@@ -2,11 +2,14 @@
     "name": "kain/lumen-extra",
     "description": "Extra library for Lumen framework",
     "require": {
+        "php": ">=7.1.3",
+        "ext-json": "*",
         "laravel/lumen-framework": "5.8.*",
         "illuminate/cookie": "^5.8",
         "illuminate/redis": "^5.8",
         "ramsey/uuid": "^3.8",
-        "lcobucci/jwt": "^3.3"
+        "lcobucci/jwt": "^3.3",
+        "kain/tidy-amqp": "^1.0"
     },
     "autoload": {
         "psr-4": {
