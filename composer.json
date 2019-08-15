@@ -1,7 +1,13 @@
 {
     "name": "kain/lumen-extra",
     "description": "Extra library for Lumen framework",
-    "license": "MIT",
+    "require": {
+        "laravel/lumen-framework": "5.8.*",
+        "illuminate/cookie": "^5.8",
+        "illuminate/redis": "^5.8",
+        "ramsey/uuid": "^3.8",
+        "lcobucci/jwt": "^3.3"
+    },
     "autoload": {
         "psr-4": {
             "lumen\\extra\\": "src/"
@@ -13,11 +19,5 @@
             "email": "zhangtqx@vip.qq.com"
         }
     ],
-    "require": {
-        "laravel/lumen-framework": "5.8.*",
-        "illuminate/redis": "^5.8",
-        "ramsey/uuid": "^3.8",
-        "ajaxray/short-code": "^1.1",
-        "lcobucci/jwt": "^3.3"
-    }
+    "license": "MIT"
 }
