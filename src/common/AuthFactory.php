@@ -4,6 +4,7 @@ namespace lumen\extra\common;
 
 use lumen\extra\facade\Cookie;
 use lumen\extra\facade\Jwt;
+use lumen\extra\Redis\RefreshToken;
 
 final class AuthFactory
 {
@@ -116,6 +117,19 @@ final class AuthFactory
 
         if (empty($this->config[$scene]['auth'])) {
             throw new \Exception('must set auth token name');
+        }
+
+        if (!empty($this->config[$scene]['auto_refresh'])) {
+            $token = Jwt::getToken(Cookie::get($this->config[$scene]['auth']));
+
+            $result = (new RefreshToken)->clear(
+                $token->getClaim('jti'),
+                $token->getClaim('ack')
+            );
+
+            if (!$result) {
+                throw new \Exception('clear refresh token failed');
+            }
         }
 
         Cookie::delete($this->config[$scene]['auth']);
