@@ -3,7 +3,7 @@
 namespace lumen\extra\common;
 
 use Illuminate\Pipeline\Pipeline;
-use Illuminate\Redis\RedisManager;
+use Predis\Client;
 use Predis\Transaction\MultiExec;
 
 abstract class RedisModel
@@ -16,13 +16,13 @@ abstract class RedisModel
 
     /**
      * Redis Manager
-     * @var RedisManager $redis
+     * @var  Client $redis
      */
     protected $redis;
 
     /**
      * RedisModel constructor.
-     * @param RedisManager|Pipeline|MultiExec $redis
+     * @param Client|Pipeline|MultiExec $redis
      */
     public function __construct($redis = null)
     {
