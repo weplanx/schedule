@@ -6,13 +6,13 @@ use Lcobucci\JWT\Token;
 use Illuminate\Support\Facades\Facade;
 
 /**
- * Class Jwt
- * @method static Token getToken()
- * @method static bool|string setToken(string $scene, array $symbol = [])
- * @method static bool|string verify(string $scene, string $token)
+ * Class Cookie
+ * @method static bool set(string $name, $value, array $option = [])
+ * @method static array|string|null get(string $name)
+ * @method static bool delete(string $name)
  * @package lumen\extra\facade
  */
-class Jwt extends Facade
+class Cookie extends Facade
 {
     /**
      * Get the registered name of the component.
@@ -21,6 +21,6 @@ class Jwt extends Facade
      */
     protected static function getFacadeAccessor()
     {
-        return 'jwt';
+        return 'cookie';
     }
 }

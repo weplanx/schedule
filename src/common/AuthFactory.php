@@ -2,7 +2,7 @@
 
 namespace lumen\extra\common;
 
-use Illuminate\Support\Facades\Cookie;
+use lumen\extra\facade\Cookie;
 use lumen\extra\facade\Jwt;
 
 final class AuthFactory
@@ -64,7 +64,7 @@ final class AuthFactory
             return false;
         }
 
-        Cookie::queue($this->config[$scene]['auth'], $token);
+        Cookie::set($this->config[$scene]['auth'], $token);
         return true;
     }
 
@@ -84,7 +84,8 @@ final class AuthFactory
             throw new \Exception('must set auth token name');
         }
 
-        if (!Cookie::has($this->config[$scene]['auth'])) {
+
+        if (empty(Cookie::get($this->config[$scene]['auth']))) {
             return false;
         }
 
@@ -94,7 +95,7 @@ final class AuthFactory
         );
 
         if (is_string($result)) {
-            Cookie::queue($this->config[$scene]['auth'], $result);
+            Cookie::set($this->config[$scene]['auth'], $result);
             return true;
         }
 
@@ -116,7 +117,7 @@ final class AuthFactory
             throw new \Exception('must set auth token name');
         }
 
-        Cookie::queue($this->config[$scene]['auth'], null);
+        Cookie::delete($this->config[$scene]['auth']);
     }
 
 }
