@@ -38,7 +38,8 @@ final class AuthFactory
             throw new \Exception('must set auth token name');
         }
 
-        return Jwt::getToken()->getClaim('symbol');
+        $token = Cookie::get($this->config[$scene]['auth']);
+        return Jwt::getToken($token)->getClaim('symbol');
     }
 
     /**

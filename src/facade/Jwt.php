@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Facade;
 
 /**
  * Class Jwt
- * @method static Token getToken()
+ * @method static Token getToken(string $token = null)
  * @method static bool|string setToken(string $scene, array $symbol = [])
  * @method static bool|string verify(string $scene, string $token)
  * @package lumen\extra\facade

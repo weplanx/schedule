@@ -53,9 +53,9 @@ final class JwtFactory
      * Get Token
      * @return Token
      */
-    public function getToken()
+    public function getToken(string $token = null)
     {
-        return $this->token;
+        return empty($token) ? $this->token : (new Parser())->parse($token);
     }
 
     /**
