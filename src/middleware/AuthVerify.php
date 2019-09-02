@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Middleware;
+namespace lumen\extra\middleware;
 
 use Closure;
 use Illuminate\Http\Request;
@@ -24,21 +24,13 @@ class AuthVerify
         }
 
         $result = Auth::verify($this->scene);
-        if ($result) {
+        if (!$result) {
             return response()->json([
                 'error' => 1,
                 'msg' => 'token invalid'
             ]);
         } else {
-            $this->definedSymbol($request);
             return $next($request);
         }
-    }
-
-    protected function definedSymbol(Request $request)
-    {
-        $symbol = Auth::symbol($this->scene);
-        $request->user = $symbol['user'];
-        $request->role = $symbol['role'];
     }
 }
