@@ -2,9 +2,8 @@
     "name": "kain/lumen-extra",
     "description": "Extra library for Lumen framework",
     "require": {
-        "php": "^7.2",
         "ext-json": "*",
-        "laravel/lumen-framework": "^6.0",
+        "laravel/lumen-framework": "*",
         "predis/predis": "^1.1",
         "ramsey/uuid": "^3.8",
         "lcobucci/jwt": "^3.3",
