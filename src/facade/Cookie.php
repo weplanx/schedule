@@ -21,6 +21,6 @@ class Cookie extends Facade
      */
     protected static function getFacadeAccessor()
     {
-        return 'single-cookie';
+        return 'cookie';
     }
 }

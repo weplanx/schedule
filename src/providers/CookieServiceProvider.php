@@ -17,7 +17,7 @@ class CookieServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->singleton('single-cookie', function (Application $app) {
+        $this->app->singleton('cookie', function (Application $app) {
             $request = $app->make('request');
             $config = $app->make('config')
                 ->get('cookie');
