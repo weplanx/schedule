@@ -4,9 +4,9 @@ namespace lumen\extra\providers;
 
 use Laravel\Lumen\Application;
 use Illuminate\Support\ServiceProvider;
-use lumen\extra\common\JwtFactory;
+use lumen\extra\common\TokenFactory;
 
-class JwtServiceProvider extends ServiceProvider
+class TokenServiceProvider extends ServiceProvider
 {
     /**
      * Register the service provider.
@@ -15,13 +15,13 @@ class JwtServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->singleton('jwt', function (Application $app) {
+        $this->app->singleton('token', function (Application $app) {
             $secret = $app->make('config')
                 ->get('app.key');
             $config = $app->make('config')
-                ->get('jwt');
+                ->get('token');
 
-            return new JwtFactory($secret, $config);
+            return new TokenFactory($secret, $config);
         });
     }
 }

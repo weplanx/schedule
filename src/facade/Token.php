@@ -2,17 +2,17 @@
 
 namespace lumen\extra\facade;
 
-use Lcobucci\JWT\Token;
+use Lcobucci\JWT\Token as LcobucciToken;
 use Illuminate\Support\Facades\Facade;
 
 /**
- * Class Jwt
- * @method static Token getToken(string $token = null)
+ * Class Token
+ * @method static LcobucciToken getToken(string $token = null)
  * @method static bool|string setToken(string $scene, array $symbol = [])
  * @method static bool|string verify(string $scene, string $token)
  * @package lumen\extra\facade
  */
-class Jwt extends Facade
+class Token extends Facade
 {
     /**
      * Get the registered name of the component.
@@ -21,6 +21,6 @@ class Jwt extends Facade
      */
     protected static function getFacadeAccessor()
     {
-        return 'jwt';
+        return 'token';
     }
 }

@@ -10,10 +10,10 @@ use Lcobucci\JWT\Signer\Key;
 use Lcobucci\JWT\Token;
 use lumen\extra\redis\RefreshToken;
 
-final class JwtFactory
+final class TokenFactory
 {
     /**
-     * JWT config
+     * Token config
      * @var array $config
      */
     private $config;
@@ -25,7 +25,7 @@ final class JwtFactory
     private $secret;
 
     /**
-     * Jwt signer
+     * Token signer
      * @var Sha256 $signer
      */
     private $signer;
