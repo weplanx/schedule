@@ -5,8 +5,7 @@
         "ext-json": "*",
         "laravel/lumen-framework": "*",
         "ramsey/uuid": "^3.8",
-        "lcobucci/jwt": "^3.3",
-        "kain/tidy-amqp": "^1.0"
+        "lcobucci/jwt": "^3.3"
     },
     "autoload": {
         "psr-4": {
