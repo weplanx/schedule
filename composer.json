@@ -4,7 +4,6 @@
     "require": {
         "ext-json": "*",
         "laravel/lumen-framework": "*",
-        "predis/predis": "^1.1",
         "ramsey/uuid": "^3.8",
         "lcobucci/jwt": "^3.3",
         "kain/tidy-amqp": "^1.0"

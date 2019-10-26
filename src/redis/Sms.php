@@ -42,9 +42,7 @@ final class Sms extends RedisModel
         $data = json_decode($this->redis->get($this->key . $phone), true);
         $result = ($code === $data['code']);
         if ($once && $result) {
-            $this->redis->del([
-                $this->key . $phone
-            ]);
+            $this->redis->del($this->key . $phone);
         }
 
         return $result;

@@ -47,7 +47,7 @@ final class RefreshToken extends RedisModel
      * Delete Refresh Token
      * @param string $jti Token ID
      * @param string $ack Ack Code
-     * @return bool|\Illuminate\Pipeline\Pipeline|int|mixed|\Predis\Client|\Predis\Transaction\MultiExec|null
+     * @return int
      */
     public function clear(string $jti, string $ack)
     {
@@ -59,6 +59,6 @@ final class RefreshToken extends RedisModel
             return false;
         }
 
-        return $this->redis->del([$this->key . $jti]);
+        return $this->redis->del($this->key . $jti);
     }
 }
