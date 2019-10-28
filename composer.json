@@ -2,14 +2,13 @@
     "name": "kain/lumen-extra",
     "description": "Extra library for Lumen framework",
     "require": {
-        "ext-json": "*",
         "laravel/lumen-framework": "*",
         "ramsey/uuid": "^3.8",
         "lcobucci/jwt": "^3.3"
     },
     "autoload": {
         "psr-4": {
-            "lumen\\extra\\": "src/"
+            "Lumen\\Extra\\": "src/"
         }
     },
     "authors": [
