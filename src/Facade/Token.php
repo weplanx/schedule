@@ -7,9 +7,9 @@ use Illuminate\Support\Facades\Facade;
 /**
  * Class Token
  * @package Lumen\Extra\Facade
- * @method \Lcobucci\JWT\Token|false create(string $scene, string $jti, string $ack, array $symbol = [])
- * @method \Lcobucci\JWT\Token get(string $tokenString)
- * @method \stdClass verify(string $scene, string $tokenString)
+ * @method static \Lcobucci\JWT\Token|false create(string $scene, string $jti, string $ack, array $symbol = [])
+ * @method static \Lcobucci\JWT\Token get(string $tokenString)
+ * @method static \stdClass verify(string $scene, string $tokenString)
  */
 final class Token extends Facade
 {
