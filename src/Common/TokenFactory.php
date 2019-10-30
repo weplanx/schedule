@@ -32,7 +32,7 @@ final class TokenFactory
     /**
      * TokenService constructor.
      * @param string $secret
-     * @param array $config
+     * @param array $options
      */
     public function __construct(string $secret, array $options)
     {
