@@ -3,6 +3,7 @@
 namespace Lumen\Extra\Facade;
 
 use Illuminate\Support\Facades\Facade;
+use Lumen\Extra\Contracts\ContextInterface;
 
 /**
  * Class Context
@@ -19,6 +20,6 @@ final class Context extends Facade
      */
     protected static function getFacadeAccessor()
     {
-        return 'context';
+        return ContextInterface::class;
     }
 }

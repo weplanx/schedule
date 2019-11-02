@@ -3,6 +3,7 @@
 namespace Lumen\Extra\Facade;
 
 use Illuminate\Support\Facades\Facade;
+use Lumen\Extra\Contracts\TokenInterface;
 
 /**
  * Class Token
@@ -20,6 +21,6 @@ final class Token extends Facade
      */
     protected static function getFacadeAccessor()
     {
-        return 'token';
+        return TokenInterface::class;
     }
 }

@@ -6,12 +6,13 @@ use Lcobucci\JWT\Builder;
 use Lcobucci\JWT\Parser;
 use Lcobucci\JWT\Signer\Hmac\Sha256;
 use Lcobucci\JWT\Signer\Key;
+use Lumen\Extra\Contracts\TokenInterface;
 
 /**
  * Class TokenFactory
  * @package Lumen\Extra\Common
  */
-final class TokenFactory
+final class TokenFactory implements TokenInterface
 {
     /**
      * App secret
@@ -48,6 +49,7 @@ final class TokenFactory
      * @param string $ack
      * @param array $symbol
      * @return \Lcobucci\JWT\Token|false
+     * @inheritDoc
      */
     public function create(string $scene, string $jti, string $ack, array $symbol = [])
     {
@@ -65,6 +67,7 @@ final class TokenFactory
      * Get token
      * @param string $tokenString
      * @return \Lcobucci\JWT\Token
+     * @inheritDoc
      */
     public function get(string $tokenString)
     {
@@ -77,6 +80,7 @@ final class TokenFactory
      * @param string $tokenString
      * @return \stdClass
      * @throws \Exception
+     * @inheritDoc
      */
     public function verify(string $scene, string $tokenString)
     {

@@ -5,6 +5,7 @@ namespace Lumen\Extra\Providers;
 use Laravel\Lumen\Application;
 use Illuminate\Support\ServiceProvider;
 use Lumen\Extra\Common\TokenFactory;
+use Lumen\Extra\Contracts\TokenInterface;
 
 final class TokenServiceProvider extends ServiceProvider
 {
@@ -14,7 +15,7 @@ final class TokenServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->singleton('token', function (Application $app) {
+        $this->app->singleton(TokenInterface::class, function (Application $app) {
             $config = $app->make('config');
             return new TokenFactory(
                 $config->get('app.key'),

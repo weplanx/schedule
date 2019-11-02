@@ -2,11 +2,13 @@
 
 namespace Lumen\Extra\Common;
 
+use Lumen\Extra\Contracts\ContextInterface;
+
 /**
  * Class ContextFactory
  * @package Lumen\Extra\Common
  */
-final class ContextFactory
+final class ContextFactory implements ContextInterface
 {
     /**
      * @var array
@@ -16,6 +18,7 @@ final class ContextFactory
     /**
      * @param string $abstract
      * @param mixed $value
+     * @inheritDoc
      */
     public function set(string $abstract, $value)
     {
@@ -25,6 +28,7 @@ final class ContextFactory
     /**
      * @param $abstract
      * @return mixed
+     * @inheritDoc
      */
     public function get($abstract)
     {
