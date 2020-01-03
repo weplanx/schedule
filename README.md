@@ -1,9 +1,3 @@
-# Lumen Extra
+# Schedule gRPC
 
-Extra library for Lumen framework
-
-### Setup
-
-```shell
-composer require kain/lumen-extra
-```
+Manage scheduled tasks using gRPC
