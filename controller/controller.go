@@ -6,6 +6,7 @@ import (
 	"schedule-microservice/common"
 	pb "schedule-microservice/router"
 	"schedule-microservice/task"
+	"time"
 )
 
 type controller struct {
@@ -22,6 +23,12 @@ func New(tk *task.Task) *controller {
 func (c *controller) Get(ctx context.Context, req *pb.GetParameter) (*pb.GetResponse, error) {
 	var err error
 	opt := c.tk.Get(req.Identity)
+	if opt == nil {
+		return &pb.GetResponse{
+			Error: 0,
+			Data:  nil,
+		}, nil
+	}
 	entries := make(map[string]*pb.EntryOptionWithTime)
 	for key, val := range opt.Entries {
 		var headers []byte
@@ -63,9 +70,13 @@ func (c *controller) Get(ctx context.Context, req *pb.GetParameter) (*pb.GetResp
 func (c *controller) Lists(ctx context.Context, req *pb.ListsParameter) (*pb.ListsResponse, error) {
 	var err error
 	var lists []*pb.Information
+	var entries map[string]*pb.EntryOptionWithTime
 	for _, identity := range req.Identity {
 		opt := c.tk.Get(identity)
-		entries := make(map[string]*pb.EntryOptionWithTime)
+		if opt == nil {
+			continue
+		}
+		entries = make(map[string]*pb.EntryOptionWithTime)
 		for key, val := range opt.Entries {
 			var headers []byte
 			headers, err = json.Marshal(val.Headers)
@@ -114,10 +125,10 @@ func (c *controller) All(ctx context.Context, req *pb.NoParameter) (*pb.AllRespo
 
 func (c *controller) Put(ctx context.Context, req *pb.PutParameter) (*pb.Response, error) {
 	var err error
-	entries := make(map[string]*common.EntryOption)
+	entries := common.NewSafeMapEntry()
 	for key, val := range req.Entries {
 		var headers map[string]string
-		err = json.Unmarshal(val.Headers, headers)
+		err = json.Unmarshal(val.Headers, &headers)
 		if err != nil {
 			return &pb.Response{
 				Error: 1,
@@ -125,27 +136,27 @@ func (c *controller) Put(ctx context.Context, req *pb.PutParameter) (*pb.Respons
 			}, nil
 		}
 		var body interface{}
-		err = json.Unmarshal(val.Body, body)
+		err = json.Unmarshal(val.Body, &body)
 		if err != nil {
 			return &pb.Response{
 				Error: 1,
 				Msg:   err.Error(),
 			}, nil
 		}
-		entries[key] = &common.EntryOption{
+		entries.Set(key, &common.EntryOption{
 			CronTime: val.CronTime,
 			Url:      val.Url,
 			Headers:  headers,
 			Body:     body,
-			NextDate: nil,
-			LastDate: nil,
-		}
+			NextDate: time.Time{},
+			LastDate: time.Time{},
+		})
 	}
 	err = c.tk.Put(common.TaskOption{
 		Identity: req.Identity,
 		TimeZone: req.TimeZone,
 		Start:    req.Start,
-		Entries:  entries,
+		Entries:  entries.Map,
 	})
 	if err != nil {
 		return &pb.Response{
