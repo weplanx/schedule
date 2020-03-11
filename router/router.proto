@@ -1,7 +1,5 @@
 syntax = "proto3";
 
-import "google/protobuf/any.proto";
-
 service Router {
     rpc Get (GetParameter) returns (GetResponse) {
     }
@@ -33,17 +31,17 @@ message Response {
 message EntryOption {
     string cron_time = 1;
     string url = 2;
-    google.protobuf.Any headers = 3;
-    google.protobuf.Any body = 4;
+    bytes headers = 3;
+    bytes body = 4;
 }
 
 message EntryOptionWithTime {
     string cron_time = 1;
     string url = 2;
-    google.protobuf.Any headers = 3;
-    google.protobuf.Any body = 4;
-    string next_date = 5;
-    string last_date = 6;
+    bytes headers = 3;
+    bytes body = 4;
+    int64 next_date = 5;
+    int64 last_date = 6;
 }
 
 message Information {
