@@ -23,7 +23,7 @@ func Create() *Task {
 	return task
 }
 
-func (c *Task) close(identity string) {
+func (c *Task) termination(identity string) {
 	if c.runtime[identity] == nil {
 		return
 	}
@@ -62,7 +62,7 @@ func (c *Task) Put(option common.TaskOption) (err error) {
 	if err != nil {
 		return
 	}
-	c.close(identity)
+	c.termination(identity)
 	c.options[identity] = &option
 	c.runtime[identity] = cron.New(cron.WithSeconds(), cron.WithLocation(timezone))
 	c.entries[identity] = make(map[string]cron.EntryID)
@@ -94,32 +94,12 @@ func (c *Task) webhook(identity string, key string) {
 			for _, value := range errs {
 				message = append(message, value.Error())
 			}
-			//common.Record <- common.RecordError{
-			//	Type:     "error",
-			//	Identity: identity,
-			//	Key:      key,
-			//	Url:      option.Url,
-			//	Header:   option.Headers,
-			//	Body:     option.Body,
-			//	Message:  message,
-			//	Time:     time.Now().Unix(),
-			//}
 		} else {
 			var response interface{}
 			err := json.Unmarshal(body, &response)
 			if err != nil {
 				println(err.Error())
 			} else {
-				//common.Record <- common.RecordSuccess{
-				//	Type:     "success",
-				//	Identity: identity,
-				//	Key:      key,
-				//	Url:      option.Url,
-				//	Header:   option.Headers,
-				//	Body:     option.Body,
-				//	Response: response,
-				//	Time:     time.Now().Unix(),
-				//}
 			}
 		}
 	})
@@ -129,7 +109,7 @@ func (c *Task) webhook(identity string, key string) {
 }
 
 func (c *Task) Delete(identity string) (err error) {
-	c.close(identity)
+	c.termination(identity)
 	delete(c.runtime, identity)
 	delete(c.options, identity)
 	delete(c.entries, identity)

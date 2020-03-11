@@ -13,8 +13,9 @@ type controller struct {
 	pb.UnimplementedRouterServer
 }
 
-func New() *controller {
+func New(tk *task.Task) *controller {
 	c := new(controller)
+	c.tk = tk
 	return c
 }
 
