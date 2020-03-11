@@ -1,4 +1,4 @@
-module ssh-microservice
+module schedule-microservice
 
 go 1.14
 
