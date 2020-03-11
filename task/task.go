@@ -48,6 +48,14 @@ func (c *Task) Get(identity string) *common.TaskOption {
 	return c.options[identity]
 }
 
+func (c *Task) All() []string {
+	var keys []string
+	for key := range c.options {
+		keys = append(keys, key)
+	}
+	return keys
+}
+
 func (c *Task) Put(option common.TaskOption) (err error) {
 	identity := option.Identity
 	timezone, err := time.LoadLocation(option.TimeZone)

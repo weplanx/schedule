@@ -48,7 +48,7 @@ message Information {
     string identity = 1;
     bool start = 2;
     string time_zone = 3;
-    repeated EntryOptionWithTime entries = 4;
+    map<string, EntryOptionWithTime> entries = 4;
 }
 
 message GetParameter {
@@ -81,7 +81,7 @@ message PutParameter {
     string identity = 1;
     string time_zone = 2;
     bool start = 3;
-    repeated EntryOption entries = 4;
+    map<string, EntryOption> entries = 4;
 }
 
 message DeleteParameter {
