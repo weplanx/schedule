@@ -2,11 +2,10 @@ package job
 
 import (
 	"errors"
-	jsoniter "github.com/json-iterator/go"
 	"github.com/parnurzeal/gorequest"
 	"github.com/robfig/cron/v3"
-	"github.com/sirupsen/logrus"
-	"log"
+	log "github.com/sirupsen/logrus"
+	"os"
 	"schedule-microservice/common"
 	"time"
 )
@@ -89,8 +88,17 @@ func (c *Job) Put(option common.JobOption) (err error) {
 }
 
 func (c *Job) addTask(identity string, task string) {
+	var err error
 	option := c.options.Get(identity).Entries[task]
 	EntryID, err := c.runtime.Get(identity).AddFunc(option.CronTime, func() {
+		var file *os.File
+		if common.OpenStorage() {
+			file, err = common.LogFile(identity)
+			if err != nil {
+				return
+			}
+			log.SetOutput(file)
+		}
 		agent := gorequest.New().Post(option.Url)
 		if option.Headers != nil {
 			for key, value := range option.Headers {
@@ -102,18 +110,33 @@ func (c *Job) addTask(identity string, task string) {
 		}
 		_, body, errs := agent.EndBytes()
 		if errs != nil {
-			logrus.Info(errs)
-			var message []string
+			var msg []string
 			for _, value := range errs {
-				message = append(message, value.Error())
+				msg = append(msg, value.Error())
 			}
+			message := map[string]interface{}{
+				"Identity": identity,
+				"Task":     task,
+				"Url":      option.Url,
+				"Header":   option.Headers,
+				"Body":     option.Body,
+				"Msg":      msg,
+				"Time":     time.Now().Unix(),
+			}
+			log.Error(message)
+			common.PushLogger(message)
 		} else {
-			var response interface{}
-			err := jsoniter.Unmarshal(body, &response)
-			if err != nil {
-				logrus.Error(err)
-			} else {
+			message := map[string]interface{}{
+				"Identity": identity,
+				"Task":     task,
+				"Url":      option.Url,
+				"Header":   option.Headers,
+				"Body":     option.Body,
+				"Response": string(body),
+				"Time":     time.Now().Unix(),
 			}
+			log.Info(message)
+			common.PushLogger(message)
 		}
 	})
 	c.entries.Set(identity, task, EntryID)

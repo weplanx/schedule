@@ -1,11 +1,20 @@
 package common
 
 import (
+	socketio "github.com/googollee/go-socket.io"
 	"gopkg.in/yaml.v3"
 	"io/ioutil"
+	"net/http"
 	"os"
 	"path/filepath"
+	"sync"
 	"time"
+)
+
+var (
+	LogOpt     *LogOption
+	Socket     *socketio.Server
+	SocketConn *socketio.Conn
 )
 
 type (
@@ -84,4 +93,67 @@ func SaveConfig(data *JobOption) (err error) {
 
 func RemoveConfig(identity string) error {
 	return os.Remove(autoload(identity))
+}
+
+func SetLogger(option *LogOption) (err error) {
+	LogOpt = option
+	if _, err := os.Stat(option.StorageDir); os.IsNotExist(err) {
+		os.Mkdir(option.StorageDir, os.ModeDir)
+	}
+	if LogOpt.Socket {
+		var wg sync.WaitGroup
+		wg.Add(1)
+		go func() {
+			Socket, err = socketio.NewServer(nil)
+			if err != nil {
+				return
+			}
+			Socket.OnConnect("/", func(s socketio.Conn) error {
+				SocketConn = &s
+				wg.Done()
+				return nil
+			})
+			go Socket.Serve()
+			http.Handle("/socket.io/", Socket)
+			http.ListenAndServe(":"+LogOpt.SocketPort, nil)
+		}()
+		wg.Wait()
+	}
+	return
+}
+
+func SocketClose() {
+	if LogOpt.Socket && Socket != nil {
+		Socket.Close()
+	}
+}
+
+func PushLogger(v ...interface{}) {
+	if LogOpt.Socket && *SocketConn != nil {
+		(*SocketConn).Emit("logger", v)
+	}
+}
+
+func OpenStorage() bool {
+	return LogOpt.Storage
+}
+
+func LogFile(identity string) (file *os.File, err error) {
+	if _, err := os.Stat("./" + LogOpt.StorageDir + "/" + identity); os.IsNotExist(err) {
+		os.Mkdir("./"+LogOpt.StorageDir+"/"+identity, os.ModeDir)
+	}
+	date := time.Now().Format("2006-01-02")
+	filename := "./" + LogOpt.StorageDir + "/" + identity + "/" + date + ".log"
+	if _, err = os.Stat(filename); os.IsNotExist(err) {
+		file, err = os.Create(filename)
+		if err != nil {
+			return
+		}
+	} else {
+		file, err = os.OpenFile(filename, os.O_APPEND, 0666)
+		if err != nil {
+			return
+		}
+	}
+	return
 }

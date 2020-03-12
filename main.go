@@ -33,6 +33,11 @@ func main() {
 			http.ListenAndServe(":6060", nil)
 		}()
 	}
+	err = common.SetLogger(&cfg.Log)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	defer common.SocketClose()
 	comJob := job.Create()
 	listen, err := net.Listen("tcp", cfg.Listen)
 	if err != nil {

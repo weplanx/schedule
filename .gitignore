@@ -24,3 +24,4 @@
 /config/config.yml
 /config/autoload
 /go.sum
+/log
