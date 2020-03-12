@@ -2,7 +2,7 @@ package main
 
 import (
 	"google.golang.org/grpc"
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 	"io/ioutil"
 	"log"
 	"net"
@@ -11,8 +11,8 @@ import (
 	"os"
 	"schedule-microservice/common"
 	"schedule-microservice/controller"
+	"schedule-microservice/job"
 	pb "schedule-microservice/router"
-	"schedule-microservice/task"
 )
 
 func main() {
@@ -33,7 +33,7 @@ func main() {
 			http.ListenAndServe(":6060", nil)
 		}()
 	}
-	tk := task.Create()
+	comJob := job.Create()
 	listen, err := net.Listen("tcp", cfg.Listen)
 	if err != nil {
 		log.Fatalln(err)
@@ -41,7 +41,7 @@ func main() {
 	server := grpc.NewServer()
 	pb.RegisterRouterServer(
 		server,
-		controller.New(tk),
+		controller.New(comJob),
 	)
 	server.Serve(listen)
 }

@@ -42,7 +42,7 @@ func TestSaveConfig(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	data := &TaskOption{
+	data := &JobOption{
 		Identity: "test",
 		TimeZone: "Asia/Shanghai",
 		Start:    true,

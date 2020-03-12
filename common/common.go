@@ -1,7 +1,7 @@
 package common
 
 import (
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -20,7 +20,7 @@ type (
 		Socket     bool   `yaml:"socket"`
 		SocketPort string `yaml:"socket_port"`
 	}
-	TaskOption struct {
+	JobOption struct {
 		Identity string                  `yaml:"identity"`
 		TimeZone string                  `yaml:"time_zone"`
 		Start    bool                    `yaml:"start"`
@@ -40,7 +40,7 @@ func autoload(identity string) string {
 	return "./config/autoload/" + identity + ".yml"
 }
 
-func ListConfig() (list []TaskOption, err error) {
+func ListConfig() (list []JobOption, err error) {
 	var files []os.FileInfo
 	files, err = ioutil.ReadDir("./config/autoload")
 	if err != nil {
@@ -54,7 +54,7 @@ func ListConfig() (list []TaskOption, err error) {
 			if err != nil {
 				return
 			}
-			var config TaskOption
+			var config JobOption
 			err = yaml.Unmarshal(in, &config)
 			if err != nil {
 				return
@@ -65,7 +65,7 @@ func ListConfig() (list []TaskOption, err error) {
 	return
 }
 
-func SaveConfig(data *TaskOption) (err error) {
+func SaveConfig(data *JobOption) (err error) {
 	var out []byte
 	out, err = yaml.Marshal(data)
 	if err != nil {
