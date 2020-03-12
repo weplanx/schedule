@@ -12,7 +12,7 @@ import (
 )
 
 type Job struct {
-	options map[string]*common.JobOption
+	options *syncMapJobOption
 	runtime *syncMapCron
 	entries *syncMapEntryID
 }
@@ -20,7 +20,7 @@ type Job struct {
 func Create() *Job {
 	var err error
 	c := new(Job)
-	c.options = make(map[string]*common.JobOption)
+	c.options = newSyncMapJobOption()
 	c.runtime = newSyncMapCron()
 	c.entries = newSyncMapEntryID()
 	var configs []common.JobOption
@@ -38,7 +38,7 @@ func Create() *Job {
 }
 
 func (c *Job) termination(identity string) {
-	if c.runtime.Empty(identity) || c.options[identity] == nil {
+	if c.runtime.Empty(identity) || c.options.Empty(identity) {
 		return
 	}
 	runtime := c.runtime.Get(identity)
@@ -49,21 +49,21 @@ func (c *Job) termination(identity string) {
 }
 
 func (c *Job) Get(identity string) *common.JobOption {
-	if c.options[identity] == nil || c.runtime.Empty(identity) || c.entries.Empty(identity) {
+	if c.options.Empty(identity) || c.runtime.Empty(identity) || c.entries.Empty(identity) {
 		return nil
 	}
-	options := c.options[identity]
+	options := c.options.Map[identity]
 	for key, entryId := range c.entries.GetJobEntryID(identity) {
 		entry := c.runtime.Map[identity].Entry(entryId)
 		options.Entries[key].NextDate = entry.Next
 		options.Entries[key].LastDate = entry.Prev
 	}
-	return c.options[identity]
+	return c.options.Map[identity]
 }
 
 func (c *Job) All() []string {
 	var keys []string
-	for key := range c.options {
+	for key := range c.options.Map {
 		keys = append(keys, key)
 	}
 	return keys
@@ -76,7 +76,7 @@ func (c *Job) Put(option common.JobOption) (err error) {
 		return
 	}
 	c.termination(identity)
-	c.options[identity] = &option
+	c.options.Set(identity, &option)
 	runtime := cron.New(cron.WithSeconds(), cron.WithLocation(timezone))
 	c.runtime.Set(identity, runtime)
 	for key := range option.Entries {
@@ -89,7 +89,7 @@ func (c *Job) Put(option common.JobOption) (err error) {
 }
 
 func (c *Job) addTask(identity string, task string) {
-	option := c.options[identity].Entries[task]
+	option := c.options.Get(identity).Entries[task]
 	EntryID, err := c.runtime.Get(identity).AddFunc(option.CronTime, func() {
 		agent := gorequest.New().Post(option.Url)
 		if option.Headers != nil {
@@ -124,22 +124,22 @@ func (c *Job) addTask(identity string, task string) {
 
 func (c *Job) Delete(identity string) (err error) {
 	c.termination(identity)
-	delete(c.options, identity)
-	c.entries.Clear(identity)
+	c.options.Clear(identity)
+	c.runtime.Clear(identity)
 	c.entries.Clear(identity)
 	return common.RemoveConfig(identity)
 }
 
 func (c *Job) Running(identity string, running bool) (err error) {
-	if c.runtime.Empty(identity) || c.options[identity] == nil {
+	if c.runtime.Empty(identity) || c.options.Empty(identity) {
 		err = errors.New("this identity does not exists")
 		return
 	}
-	c.options[identity].Start = running
+	c.options.Map[identity].Start = running
 	if running {
 		c.runtime.Map[identity].Start()
 	} else {
 		c.runtime.Map[identity].Stop()
 	}
-	return common.SaveConfig(c.options[identity])
+	return common.SaveConfig(c.options.Map[identity])
 }
