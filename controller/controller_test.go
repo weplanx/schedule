@@ -16,7 +16,8 @@ import (
 var conn *grpc.ClientConn
 
 func TestMain(m *testing.M) {
-	in, err := ioutil.ReadFile("../config/config.yml")
+	os.Chdir("..")
+	in, err := ioutil.ReadFile("./config/config.yml")
 	if err != nil {
 		log.Fatalln(err)
 	}
