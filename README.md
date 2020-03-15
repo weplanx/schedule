@@ -2,6 +2,11 @@
 
 Manage scheduled tasks using gRPC
 
+[![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/kainonly/schedule-microservice?style=flat-square)](https://github.com/kainonly/schedule-microservice)
+[![Travis](https://img.shields.io/travis/kainonly/schedule-microservice?style=flat-square)](https://www.travis-ci.org/kainonly/schedule-microservice)
+[![Docker Pulls](https://img.shields.io/docker/pulls/kainonly/schedule-microservice.svg?style=flat-square)](https://hub.docker.com/r/kainonly/schedule-microservice)
+[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](https://raw.githubusercontent.com/kainonly/schedule-microservice/master/LICENSE)
+
 ## Configuration
 
 For configuration, please refer to `config/config.example.yml`
