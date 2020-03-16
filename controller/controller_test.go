@@ -42,13 +42,13 @@ func TestPut(t *testing.T) {
 			Entries: map[string]*pb.EntryOption{
 				"task1": &pb.EntryOption{
 					CronTime: "*/5 * * * * *",
-					Url:      "http://localhost:3000",
+					Url:      "http://10.0.75.1:3000",
 					Headers:  []byte(`{"x-token":"abc"}`),
 					Body:     []byte(`{"name":"task1"}`),
 				},
 				"task2": &pb.EntryOption{
 					CronTime: "*/10 * * * * *",
-					Url:      "http://localhost:3000",
+					Url:      "http://10.0.75.1:3000",
 					Headers:  []byte(`{"x-token":"abc"}`),
 					Body:     []byte(`{"name":"task2"}`),
 				},
@@ -75,13 +75,13 @@ func TestPutOther(t *testing.T) {
 			Entries: map[string]*pb.EntryOption{
 				"other1": &pb.EntryOption{
 					CronTime: "*/8 * * * * *",
-					Url:      "http://localhost:3000",
+					Url:      "http://10.0.75.1:3000",
 					Headers:  []byte(`{"x-token":"123"}`),
 					Body:     []byte(`{"name":"other1"}`),
 				},
 				"other2": &pb.EntryOption{
 					CronTime: "*/16 * * * * *",
-					Url:      "http://localhost:3000",
+					Url:      "http://10.0.75.1:3000",
 					Headers:  []byte(`{"x-token":"123"}`),
 					Body:     []byte(`{"name":"other2"}`),
 				},

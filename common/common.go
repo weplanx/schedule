@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"sync"
 	"time"
 )
 
@@ -101,8 +100,6 @@ func SetLogger(option *LogOption) (err error) {
 		os.Mkdir(option.StorageDir, os.ModeDir)
 	}
 	if LogOpt.Socket {
-		var wg sync.WaitGroup
-		wg.Add(1)
 		go func() {
 			Socket, err = socketio.NewServer(nil)
 			if err != nil {
@@ -110,14 +107,12 @@ func SetLogger(option *LogOption) (err error) {
 			}
 			Socket.OnConnect("/", func(s socketio.Conn) error {
 				SocketConn = &s
-				wg.Done()
 				return nil
 			})
 			go Socket.Serve()
 			http.Handle("/socket.io/", Socket)
 			http.ListenAndServe(":"+LogOpt.SocketPort, nil)
 		}()
-		wg.Wait()
 	}
 	return
 }
@@ -129,7 +124,7 @@ func SocketClose() {
 }
 
 func PushLogger(v ...interface{}) {
-	if LogOpt.Socket && *SocketConn != nil {
+	if LogOpt.Socket && SocketConn != nil {
 		(*SocketConn).Emit("logger", v)
 	}
 }
@@ -150,7 +145,7 @@ func LogFile(identity string) (file *os.File, err error) {
 			return
 		}
 	} else {
-		file, err = os.OpenFile(filename, os.O_APPEND, 0666)
+		file, err = os.OpenFile(filename, os.O_APPEND|os.O_WRONLY, os.ModeAppend)
 		if err != nil {
 			return
 		}
