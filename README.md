@@ -119,3 +119,174 @@ message RunningParameter {
     bool running = 2;
 }
 ```
+
+#### rpc Get (GetParameter) returns (GetResponse) {}
+
+Get job information
+
+- GetParameter
+  - **identity** `string` job id
+- GetResponse
+  - **error** `uint32` error code, `0` is normal
+  - **msg** `string` error feedback
+  - **data** `Information` result
+    - **identity** `string` job id
+    - **start** `bool` operating status
+    - **time_zone** `string` time zone, [tz database](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones)
+    - **entries** `map<string, EntryOptionWithTime>` The task workflow
+      - **string** task id
+      - EntryOptionWithTime
+        - **cron_time** `string` CronTab rule
+        - **url** `string` callback hook url
+        - **headers** `bytes`
+        - **body** `bytes` 
+        - **next_date** `int64` next run unixtime
+        - **last_date** `int64` last run unixtime
+
+```golang
+client := pb.NewRouterClient(conn)
+response, err := client.Get(
+    context.Background(),
+    &pb.GetParameter{
+        Identity: "test",
+    },
+)
+```
+
+#### rpc Lists (ListsParameter) returns (ListsResponse) {}
+
+Get job information in batches
+
+- ListsParameter
+  - **identity** `[]string` job IDs
+- ListsResponse
+  - **error** `uint32` error code, `0` is normal
+  - **msg** `string` error feedback
+  - **data** `[]Information` result
+    - **identity** `string` job id
+    - **start** `bool` operating status
+    - **time_zone** `string` time zone, [tz database](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones)
+    - **entries** `map<string, EntryOptionWithTime>` The task workflow
+      - **string** task id
+      - EntryOptionWithTime
+        - **cron_time** `string` CronTab rule
+        - **url** `string` callback hook url
+        - **headers** `bytes`
+        - **body** `bytes` 
+        - **next_date** `int64` next run unixtime
+        - **last_date** `int64` last run unixtime
+
+```golang
+client := pb.NewRouterClient(conn)
+response, err := client.Lists(
+    context.Background(),
+    &pb.ListsParameter{
+        Identity: []string{"test", "other"},
+    },
+)
+```
+
+#### rpc All (NoParameter) returns (AllResponse) {}
+
+Get all job IDs
+
+- NoParameter
+- AllResponse
+  - **error** `uint32` error code, `0` is normal
+  - **msg** `string` error feedback
+  - **data** `[]string` job IDs
+
+```golang
+client := pb.NewRouterClient(conn)
+response, err := client.All(
+    context.Background(),
+    &pb.NoParameter{},
+)
+```
+
+#### rpc Put (PutParameter) returns (Response) {}
+
+Add or update job
+
+- PutParameter
+  - **identity** `string` job id
+  - **time_zone** `string` time zone, [tz database](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones)
+  - **start** `bool` operating status
+  - **entries** `map<string, EntryOption>` The task workflow
+    - **string** task id
+    - EntryOptionWithTime
+      - **cron_time** `string` CronTab rule
+      - **url** `string` callback hook url
+      - **headers** `bytes`
+      - **body** `bytes` 
+- Response
+  - **error** `uint32` error code, `0` is normal
+  - **msg** `string` error feedback
+
+```golang
+client := pb.NewRouterClient(conn)
+response, err := client.Put(
+    context.Background(),
+    &pb.PutParameter{
+        Identity: "test",
+        TimeZone: "Asia/Shanghai",
+        Start:    true,
+        Entries: map[string]*pb.EntryOption{
+            "task1": &pb.EntryOption{
+                CronTime: "*/5 * * * * *",
+                Url:      "http://localhost:3000",
+                Headers:  []byte(`{"x-token":"abc"}`),
+                Body:     []byte(`{"name":"task1"}`),
+            },
+            "task2": &pb.EntryOption{
+                CronTime: "*/10 * * * * *",
+                Url:      "http://localhost:3000",
+                Headers:  []byte(`{"x-token":"abc"}`),
+                Body:     []byte(`{"name":"task2"}`),
+            },
+        },
+    },
+)
+```
+
+#### rpc Delete (DeleteParameter) returns (Response) {}
+
+remvoe job
+
+- DeleteParameter
+  - **identity** `string` job id
+- Response
+  - **error** `uint32` error code, `0` is normal
+  - **msg** `string` error feedback
+
+```golang
+client := pb.NewRouterClient(conn)
+response, err := client.Delete(
+    context.Background(),
+    &pb.DeleteParameter{
+        Identity: "test",
+    },
+)
+```
+
+#### rpc Running (RunningParameter) returns (Response) {}
+
+Change operation status
+
+- RunningParameter
+  - **identity** `string` job id
+  - **running** `bool` operating status
+- Response
+  - **error** `uint32` error code, `0` is normal
+  - **msg** `string` error feedback
+
+```golang
+client := pb.NewRouterClient(conn)
+response, err := client.Running(
+    context.Background(),
+    &pb.RunningParameter{
+        Identity: "test",
+        Running:  false,
+    },
+)
+```
