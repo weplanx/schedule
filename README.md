@@ -7,6 +7,24 @@ Manage scheduled tasks using gRPC
 [![Docker Pulls](https://img.shields.io/docker/pulls/kainonly/schedule-microservice.svg?style=flat-square)](https://hub.docker.com/r/kainonly/schedule-microservice)
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](https://raw.githubusercontent.com/kainonly/schedule-microservice/master/LICENSE)
 
+## Setup
+
+Example using docker compose
+
+```yaml
+version: "3.7"
+services: 
+  schedule:
+    image: kainonly/schedule-microservice
+    restart: always
+    volumes: 
+      - ./schedule/config:/app/config
+      - ./schedule/log:/app/log
+    ports:
+      - 6000:6000
+      - 6001:6001
+```
+
 ## Configuration
 
 For configuration, please refer to `config/config.example.yml`
