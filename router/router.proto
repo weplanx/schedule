@@ -1,5 +1,5 @@
 syntax = "proto3";
-
+package ScheduleMicroservice;
 service Router {
     rpc Get (GetParameter) returns (GetResponse) {
     }
