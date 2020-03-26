@@ -37,7 +37,7 @@ func main() {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	defer common.SocketClose()
+	defer common.LoggerClose()
 	comJob := job.Create()
 	listen, err := net.Listen("tcp", cfg.Listen)
 	if err != nil {

@@ -1,7 +1,9 @@
 package common
 
 import (
+	"encoding/json"
 	socketio "github.com/googollee/go-socket.io"
+	"github.com/streadway/amqp"
 	"gopkg.in/yaml.v3"
 	"io/ioutil"
 	"net/http"
@@ -11,9 +13,11 @@ import (
 )
 
 var (
-	LogOpt     *LogOption
-	Socket     *socketio.Server
-	SocketConn *socketio.Conn
+	LogOpt      *LogOption
+	Socket      *socketio.Server
+	SocketConn  *socketio.Conn
+	AmqpConn    *amqp.Connection
+	AmqpChannel *amqp.Channel
 )
 
 type (
@@ -23,10 +27,14 @@ type (
 		Log    LogOption `yaml:"log"`
 	}
 	LogOption struct {
-		Storage    bool   `yaml:"storage"`
-		StorageDir string `yaml:"storage_dir"`
-		Socket     bool   `yaml:"socket"`
-		SocketPort string `yaml:"socket_port"`
+		Storage        bool   `yaml:"storage"`
+		StorageDir     string `yaml:"storage_dir"`
+		Socket         bool   `yaml:"socket"`
+		SocketPort     string `yaml:"socket_port"`
+		Amqp           bool   `yaml:"amqp"`
+		AmqpUri        string `yaml:"amqp_uri"`
+		AmqpExchange   string `yaml:"amqp_exchange"`
+		AmqpRoutingKey string `yaml:"amqp_routing_key"`
 	}
 	JobOption struct {
 		Identity string                  `yaml:"identity"`
@@ -114,19 +122,58 @@ func SetLogger(option *LogOption) (err error) {
 			http.ListenAndServe(":"+LogOpt.SocketPort, nil)
 		}()
 	}
+	if LogOpt.Amqp {
+		AmqpConn, err = amqp.Dial(LogOpt.AmqpUri)
+		if err != nil {
+			return
+		}
+		AmqpChannel, err = AmqpConn.Channel()
+		if err != nil {
+			return
+		}
+	}
 	return
 }
 
-func SocketClose() {
+func LoggerClose() {
 	if LogOpt.Socket && Socket != nil {
 		Socket.Close()
 	}
+	if LogOpt.Amqp {
+		if AmqpChannel != nil {
+			AmqpChannel.Close()
+		}
+		if AmqpConn != nil {
+			AmqpConn.Close()
+		}
+	}
 }
 
-func PushLogger(v ...interface{}) {
+func PushLogger(v interface{}) (err error) {
 	if LogOpt.Socket && SocketConn != nil {
 		(*SocketConn).Emit("logger", v)
 	}
+	if LogOpt.Amqp && AmqpChannel != nil {
+		var body []byte
+		body, err = json.Marshal(v)
+		if err != nil {
+			return
+		}
+		err = AmqpChannel.Publish(
+			LogOpt.AmqpExchange,
+			LogOpt.AmqpRoutingKey,
+			false,
+			false,
+			amqp.Publishing{
+				ContentType: "application/json",
+				Body:        body,
+			},
+		)
+		if err != nil {
+			return
+		}
+	}
+	return
 }
 
 func OpenStorage() bool {
