@@ -36,6 +36,10 @@ For configuration, please refer to `config/config.example.yml`
     - **storage_dir** `string` Local log storage directory
     - **socket** `bool` Enable remote log transfer
     - **socket_port** `int` Define the socket listening port
+    - **amqp** `bool` Enable amqp log transfer
+    - **amqp_uri** `string` AMQP uri
+    - **amqp_exchange** `string` AMQP exchange name
+    - **amqp_routing_key** `string` AMQP routing key
 
 ## Service
 
