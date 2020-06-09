@@ -4,7 +4,7 @@ import (
 	"errors"
 	"github.com/parnurzeal/gorequest"
 	"github.com/robfig/cron/v3"
-	log "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 	"os"
 	"schedule-microservice/common"
 	"time"
@@ -25,12 +25,12 @@ func Create() *Job {
 	var configs []common.JobOption
 	configs, err = common.ListConfig()
 	if err != nil {
-		log.Fatalln(err)
+		logrus.Fatalln(err)
 	}
 	for _, opt := range configs {
 		err = c.Put(opt)
 		if err != nil {
-			log.Fatalln(err)
+			logrus.Fatalln(err)
 		}
 	}
 	return c
@@ -91,13 +91,14 @@ func (c *Job) addTask(identity string, task string) {
 	var err error
 	option := c.options.Get(identity).Entries[task]
 	EntryID, err := c.runtime.Get(identity).AddFunc(option.CronTime, func() {
+		logger := logrus.New()
 		var file *os.File
 		if common.OpenStorage() {
 			file, err = common.LogFile(identity)
 			if err != nil {
 				return
 			}
-			log.SetOutput(file)
+			logger.SetOutput(file)
 		}
 		agent := gorequest.New().Post(option.Url)
 		if option.Headers != nil {
@@ -123,7 +124,7 @@ func (c *Job) addTask(identity string, task string) {
 				"Msg":      msg,
 				"Time":     time.Now().Unix(),
 			}
-			log.Error(message)
+			logger.Error(message)
 			common.PushLogger(message)
 		} else {
 			message := map[string]interface{}{
@@ -135,7 +136,7 @@ func (c *Job) addTask(identity string, task string) {
 				"Response": string(body),
 				"Time":     time.Now().Unix(),
 			}
-			log.Info(message)
+			logger.Info(message)
 			common.PushLogger(message)
 		}
 	})
