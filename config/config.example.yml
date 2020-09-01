@@ -1,11 +1,4 @@
 debug: true
 listen: 127.0.0.1:6000
-log:
-  storage: true
-  storage_dir: ./log
-  socket: false
-  socket_port: 6001
-  amqp: false
-  amqp_uri: amqp://guest:guest@localhost:5672/
-  amqp_exchange:
-  amqp_routing_key:
+logging:
+  storage: ./log
