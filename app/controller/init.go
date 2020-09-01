@@ -34,11 +34,13 @@ func (c *controller) find(identity string) (information *pb.Information, err err
 	for taskID, entryID := range entryIDs {
 		task := job.Entry(entryID)
 		entryOption := option.Entries[taskID]
-		headers, err := jsoniter.Marshal(entryOption.Headers)
+		var headers []byte
+		headers, err = jsoniter.Marshal(entryOption.Headers)
 		if err != nil {
 			return
 		}
-		body, err := jsoniter.Marshal(entryOption.Body)
+		var body []byte
+		body, err = jsoniter.Marshal(entryOption.Body)
 		if err != nil {
 			return
 		}

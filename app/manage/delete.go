@@ -5,5 +5,5 @@ func (c *JobsManager) Delete(identity string) (err error) {
 	c.options.Clear(identity)
 	c.runtime.Clear(identity)
 	c.entryIDSet.Clear(identity)
-	return
+	return c.schema.Delete(identity)
 }

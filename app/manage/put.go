@@ -23,7 +23,7 @@ func (c *JobsManager) Put(option types.JobOption) (err error) {
 	if option.Start {
 		job.Start()
 	}
-	return
+	return c.schema.Update(option)
 }
 
 func (c *JobsManager) addTask(identity string, taskID string) {

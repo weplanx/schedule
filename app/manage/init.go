@@ -3,6 +3,7 @@ package manage
 import (
 	"errors"
 	"github.com/robfig/cron/v3"
+	"schedule-microservice/app/schema"
 	"schedule-microservice/app/types"
 	"schedule-microservice/app/utils"
 )
@@ -11,13 +12,26 @@ type JobsManager struct {
 	options    *utils.SyncMapJobOption
 	runtime    *utils.SyncMapCron
 	entryIDSet *utils.SyncMapEntryID
+	schema     *schema.Schema
 }
 
 func NewJobsManager() (manager *JobsManager, err error) {
-	c := new(JobsManager)
-	c.options = utils.NewSyncMapJobOption()
-	c.runtime = utils.NewSyncMapCron()
-	c.entryIDSet = utils.NewSyncMapEntryID()
+	manager = new(JobsManager)
+	manager.options = utils.NewSyncMapJobOption()
+	manager.runtime = utils.NewSyncMapCron()
+	manager.entryIDSet = utils.NewSyncMapEntryID()
+	manager.schema = schema.New()
+	var jobOptions []types.JobOption
+	jobOptions, err = manager.schema.Lists()
+	if err != nil {
+		return
+	}
+	for _, option := range jobOptions {
+		err = manager.Put(option)
+		if err != nil {
+			return
+		}
+	}
 	return
 }
 

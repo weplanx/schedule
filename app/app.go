@@ -28,7 +28,7 @@ func (app *App) Start() (err error) {
 		}()
 	}
 	// Start microservice
-	listen, err := net.Listen("tpc", app.option.Listen)
+	listen, err := net.Listen("tcp", app.option.Listen)
 	if err != nil {
 		return
 	}

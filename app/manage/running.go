@@ -10,5 +10,5 @@ func (c *JobsManager) Running(identity string, running bool) (err error) {
 	} else {
 		c.runtime.Map[identity].Stop()
 	}
-	return
+	return c.schema.Update(*c.options.Map[identity])
 }
