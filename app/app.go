@@ -4,6 +4,7 @@ import (
 	"google.golang.org/grpc"
 	"net"
 	"net/http"
+	_ "net/http/pprof"
 	"schedule-microservice/app/controller"
 	"schedule-microservice/app/manage"
 	"schedule-microservice/app/types"
