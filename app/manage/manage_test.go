@@ -14,7 +14,7 @@ var option types.JobOption
 func TestMain(m *testing.M) {
 	os.Chdir("../..")
 	var err error
-	manager, err = NewJobsManager()
+	manager, err = NewJobsManager(&types.LoggingOption{})
 	if err != nil {
 		log.Fatalln(err)
 	}

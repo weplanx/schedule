@@ -34,7 +34,7 @@ func (app *App) Start() (err error) {
 		return
 	}
 	server := grpc.NewServer()
-	manager, err := manage.NewJobsManager()
+	manager, err := manage.NewJobsManager(&app.option.Logging)
 	if err != nil {
 		return
 	}

@@ -29,10 +29,41 @@ func (c *JobsManager) Put(option types.JobOption) (err error) {
 func (c *JobsManager) addTask(identity string, taskID string) {
 	option := c.options.Get(identity).Entries[taskID]
 	EntryID, err := c.runtime.Get(identity).AddFunc(option.CronTime, func() {
-		actions.Fetch(types.FetchOption{
+		body, errs := actions.Fetch(types.FetchOption{
 			Url:     option.Url,
 			Headers: option.Headers,
 			Body:    option.Body,
+		})
+		var message map[string]interface{}
+		if len(errs) != 0 {
+			msg := make([]string, len(errs))
+			for index, value := range errs {
+				msg[index] = value.Error()
+			}
+			message = map[string]interface{}{
+				"Identity": identity,
+				"Task":     taskID,
+				"Url":      option.Url,
+				"Header":   option.Headers,
+				"Body":     option.Body,
+				"Msg":      msg,
+				"Time":     time.Now().Unix(),
+			}
+		} else {
+			message = map[string]interface{}{
+				"Identity": identity,
+				"Task":     taskID,
+				"Url":      option.Url,
+				"Header":   option.Headers,
+				"Body":     option.Body,
+				"Response": string(body),
+				"Time":     time.Now().Unix(),
+			}
+		}
+		actions.Logging(c.logging, &types.LoggingPush{
+			Identity: identity,
+			HasError: len(errs) != 0,
+			Message:  message,
 		})
 	})
 	if err != nil {

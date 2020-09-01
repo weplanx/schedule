@@ -12,14 +12,16 @@ type JobsManager struct {
 	options    *utils.SyncMapJobOption
 	runtime    *utils.SyncMapCron
 	entryIDSet *utils.SyncMapEntryID
+	logging    *types.LoggingOption
 	schema     *schema.Schema
 }
 
-func NewJobsManager() (manager *JobsManager, err error) {
+func NewJobsManager(logging *types.LoggingOption) (manager *JobsManager, err error) {
 	manager = new(JobsManager)
 	manager.options = utils.NewSyncMapJobOption()
 	manager.runtime = utils.NewSyncMapCron()
 	manager.entryIDSet = utils.NewSyncMapEntryID()
+	manager.logging = logging
 	manager.schema = schema.New()
 	var jobOptions []types.JobOption
 	jobOptions, err = manager.schema.Lists()
