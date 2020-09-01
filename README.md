@@ -3,7 +3,8 @@
 Manage scheduled tasks using gRPC
 
 [![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/kainonly/schedule-microservice?style=flat-square)](https://github.com/kainonly/schedule-microservice)
-[![Travis](https://img.shields.io/travis/kainonly/schedule-microservice?style=flat-square)](https://www.travis-ci.org/kainonly/schedule-microservice)
+[![Github Actions](https://img.shields.io/github/workflow/status/codexset/schedule-microservice/release?style=flat-square)](https://github.com/codexset/schedule-microservice/actions)
+[![Image Size](https://img.shields.io/docker/image-size/kainonly/schedule-microservice?style=flat-square)](https://hub.docker.com/r/kainonly/schedule-microservice)
 [![Docker Pulls](https://img.shields.io/docker/pulls/kainonly/schedule-microservice.svg?style=flat-square)](https://hub.docker.com/r/kainonly/schedule-microservice)
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](https://raw.githubusercontent.com/kainonly/schedule-microservice/master/LICENSE)
 
@@ -12,7 +13,7 @@ Manage scheduled tasks using gRPC
 Example using docker compose
 
 ```yaml
-version: "3.7"
+version: "3.8"
 services: 
   schedule:
     image: kainonly/schedule-microservice
@@ -32,22 +33,15 @@ For configuration, please refer to `config/config.example.yml`
 - **debug** `bool` Start debugging, ie `net/http/pprof`, access address is`http://localhost:6060`
 - **listen** `string` Microservice listening address
 - **log** `object` Log configuration
-    - **storage** `bool` Turn on local logs
-    - **storage_dir** `string` Local log storage directory
-    - **socket** `bool` Enable remote log transfer
-    - **socket_port** `int` Define the socket listening port
-    - **amqp** `bool` Enable amqp log transfer
-    - **amqp_uri** `string` AMQP uri
-    - **amqp_exchange** `string` AMQP exchange name
-    - **amqp_routing_key** `string` AMQP routing key
+    - **storage** `string` Local log storage directory
 
 ## Service
 
 The service is based on gRPC and you can view `router/router.proto`
 
-```
+```proto
 syntax = "proto3";
-
+package schedule;
 service Router {
     rpc Get (GetParameter) returns (GetResponse) {
     }
