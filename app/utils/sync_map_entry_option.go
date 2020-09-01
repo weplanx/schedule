@@ -18,9 +18,9 @@ func NewSyncMapEntryOption() *SyncMapEntryOption {
 
 func (c *SyncMapEntryOption) Get(identity string) *types.EntryOption {
 	c.RLock()
-	data := c.Map[identity]
+	value := c.Map[identity]
 	c.RUnlock()
-	return data
+	return value
 }
 
 func (c *SyncMapEntryOption) Set(identity string, entry *types.EntryOption) {

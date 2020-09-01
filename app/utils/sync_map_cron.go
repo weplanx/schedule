@@ -22,9 +22,9 @@ func (c *SyncMapCron) Empty(identity string) bool {
 
 func (c *SyncMapCron) Get(identity string) *cron.Cron {
 	c.RLock()
-	data := c.Map[identity]
+	value := c.Map[identity]
 	c.RUnlock()
-	return data
+	return value
 }
 
 func (c *SyncMapCron) Set(identity string, cron *cron.Cron) {

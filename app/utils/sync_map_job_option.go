@@ -22,9 +22,9 @@ func (c *SyncMapJobOption) Empty(identity string) bool {
 
 func (c *SyncMapJobOption) Get(identity string) *types.JobOption {
 	c.RLock()
-	data := c.Map[identity]
+	value := c.Map[identity]
 	c.RUnlock()
-	return data
+	return value
 }
 
 func (c *SyncMapJobOption) Set(identity string, option *types.JobOption) {
