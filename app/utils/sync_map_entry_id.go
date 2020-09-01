@@ -5,30 +5,30 @@ import (
 	"sync"
 )
 
-type SyncMapEntryIDSet struct {
+type SyncMapEntryID struct {
 	sync.RWMutex
 	Map map[string]map[string]cron.EntryID
 }
 
-func NewSyncMapEntryIDSet() *SyncMapEntryIDSet {
-	c := new(SyncMapEntryIDSet)
+func NewSyncMapEntryID() *SyncMapEntryID {
+	c := new(SyncMapEntryID)
 	c.Map = make(map[string]map[string]cron.EntryID)
 	return c
 }
 
-func (c *SyncMapEntryIDSet) Empty(identity string) bool {
+func (c *SyncMapEntryID) Empty(identity string) bool {
 	return c.Map[identity] == nil
 }
 
-func (c *SyncMapEntryIDSet) Set(identity string, task string, EntryID cron.EntryID) {
+func (c *SyncMapEntryID) Set(identity string, taskID string, EntryID cron.EntryID) {
 	c.Lock()
 	if c.Map[identity] == nil {
 		c.Map[identity] = make(map[string]cron.EntryID)
 	}
-	c.Map[identity][task] = EntryID
+	c.Map[identity][taskID] = EntryID
 	c.Unlock()
 }
 
-func (c *SyncMapEntryIDSet) Clear(identity string) {
+func (c *SyncMapEntryID) Clear(identity string) {
 	delete(c.Map, identity)
 }

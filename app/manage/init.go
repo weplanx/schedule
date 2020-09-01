@@ -10,14 +10,14 @@ import (
 type JobsManager struct {
 	options    *utils.SyncMapJobOption
 	runtime    *utils.SyncMapCron
-	entryIDSet *utils.SyncMapEntryIDSet
+	entryIDSet *utils.SyncMapEntryID
 }
 
 func NewJobsManager() (manager *JobsManager, err error) {
 	c := new(JobsManager)
 	c.options = utils.NewSyncMapJobOption()
 	c.runtime = utils.NewSyncMapCron()
-	c.entryIDSet = utils.NewSyncMapEntryIDSet()
+	c.entryIDSet = utils.NewSyncMapEntryID()
 	return
 }
 
