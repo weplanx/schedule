@@ -32,7 +32,7 @@ For configuration, please refer to `config/config.example.yml`
 
 - **debug** `bool` Start debugging, ie `net/http/pprof`, access address is`http://localhost:6060`
 - **listen** `string` Microservice listening address
-- **log** `object` Log configuration
+- **logging** `object` Log configuration
     - **storage** `string` Local log storage directory
 
 ## Service
