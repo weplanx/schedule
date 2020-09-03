@@ -14,7 +14,6 @@ import (
 )
 
 var client pb.RouterClient
-var option *pb.PutParameter
 
 func TestMain(m *testing.M) {
 	os.Chdir("../..")
@@ -38,7 +37,11 @@ func TestMain(m *testing.M) {
 		logrus.Fatalln(err)
 	}
 	client = pb.NewRouterClient(grpcConn)
-	option = &pb.PutParameter{
+	os.Exit(m.Run())
+}
+
+func TestController_Put(t *testing.T) {
+	response, err := client.Put(context.Background(), &pb.PutParameter{
 		Identity: "test",
 		TimeZone: "Asia/Shanghai",
 		Start:    true,
@@ -56,12 +59,7 @@ func TestMain(m *testing.M) {
 				Body:     []byte(`{"name":"task2"}`),
 			},
 		},
-	}
-	os.Exit(m.Run())
-}
-
-func TestController_Put(t *testing.T) {
-	response, err := client.Put(context.Background(), option)
+	})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -82,7 +80,7 @@ func TestController_Get(t *testing.T) {
 	if response.Error != 0 {
 		t.Error(response.Msg)
 	} else {
-		t.Log(response.Msg)
+		t.Log(response.Data)
 	}
 }
 
@@ -96,7 +94,7 @@ func TestController_Lists(t *testing.T) {
 	if response.Error != 0 {
 		t.Error(response.Msg)
 	} else {
-		t.Log(response.Msg)
+		t.Log(response.Data)
 	}
 }
 
@@ -108,7 +106,7 @@ func TestController_All(t *testing.T) {
 	if response.Error != 0 {
 		t.Error(response.Msg)
 	} else {
-		t.Log(response.Msg)
+		t.Log(response.Data)
 	}
 }
 
