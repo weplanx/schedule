@@ -1,4 +1,4 @@
-package actions
+package logging
 
 import (
 	"github.com/sirupsen/logrus"
@@ -8,27 +8,17 @@ import (
 	"time"
 )
 
-func Logging(option *types.LoggingOption, push *types.LoggingPush) (err error) {
-	if option.Storage != "" {
-		err = loggingForStorage(option, push)
-		if err != nil {
-			return
-		}
-	}
-	return
-}
-
-func loggingForStorage(option *types.LoggingOption, push *types.LoggingPush) (err error) {
+func (c *Logging) forStorage(push *types.LoggingPush) (err error) {
 	logger := logrus.New()
-	if _, err := os.Stat(option.Storage); os.IsNotExist(err) {
-		os.Mkdir(option.Storage, os.ModeDir)
+	if _, err := os.Stat(c.Storage); os.IsNotExist(err) {
+		os.Mkdir(c.Storage, os.ModeDir)
 	}
-	identityPath := path.Join(option.Storage, push.Identity)
+	identityPath := path.Join(c.Storage, push.Identity)
 	if _, err := os.Stat(identityPath); os.IsNotExist(err) {
 		os.Mkdir(identityPath, os.ModeDir)
 	}
 	date := time.Now().Format("2006-01-02")
-	filename := path.Join(option.Storage, push.Identity, date+".log")
+	filename := path.Join(c.Storage, push.Identity, date+".log")
 	var file *os.File
 	if _, err = os.Stat(filename); os.IsNotExist(err) {
 		file, err = os.Create(filename)

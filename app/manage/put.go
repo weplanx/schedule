@@ -1,6 +1,7 @@
 package manage
 
 import (
+	"encoding/json"
 	"github.com/robfig/cron/v3"
 	"schedule-microservice/app/actions"
 	"schedule-microservice/app/types"
@@ -35,6 +36,13 @@ func (c *JobsManager) addTask(identity string, taskID string) {
 			Body:    option.Body,
 		})
 		var message map[string]interface{}
+		var bodyRecord interface{}
+		bodyRaw, ok := option.Body.(string)
+		if ok && json.Valid([]byte(bodyRaw)) {
+			json.Unmarshal([]byte(bodyRaw), &bodyRecord)
+		} else {
+			bodyRecord = option.Body
+		}
 		if len(errs) != 0 {
 			msg := make([]string, len(errs))
 			for index, value := range errs {
@@ -45,22 +53,26 @@ func (c *JobsManager) addTask(identity string, taskID string) {
 				"Task":     taskID,
 				"Url":      option.Url,
 				"Header":   option.Headers,
-				"Body":     option.Body,
+				"Body":     bodyRecord,
 				"Msg":      msg,
 				"Time":     time.Now().Unix(),
 			}
 		} else {
+			var responseRecord interface{}
+			if json.Valid(body) {
+				json.Unmarshal(body, &responseRecord)
+			}
 			message = map[string]interface{}{
 				"Identity": identity,
 				"Task":     taskID,
 				"Url":      option.Url,
 				"Header":   option.Headers,
-				"Body":     option.Body,
-				"Response": string(body),
+				"Body":     bodyRecord,
+				"Response": responseRecord,
 				"Time":     time.Now().Unix(),
 			}
 		}
-		actions.Logging(c.logging, &types.LoggingPush{
+		c.logging.Push(&types.LoggingPush{
 			Identity: identity,
 			HasError: len(errs) != 0,
 			Message:  message,

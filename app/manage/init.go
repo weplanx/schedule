@@ -3,6 +3,7 @@ package manage
 import (
 	"errors"
 	"github.com/robfig/cron/v3"
+	"schedule-microservice/app/logging"
 	"schedule-microservice/app/schema"
 	"schedule-microservice/app/types"
 	"schedule-microservice/app/utils"
@@ -12,17 +13,17 @@ type JobsManager struct {
 	options    *utils.SyncMapJobOption
 	runtime    *utils.SyncMapCron
 	entryIDSet *utils.SyncMapEntryID
-	logging    *types.LoggingOption
+	logging    *logging.Logging
 	schema     *schema.Schema
 }
 
-func NewJobsManager(logging *types.LoggingOption) (manager *JobsManager, err error) {
+func NewJobsManager(schema *schema.Schema, logging *logging.Logging) (manager *JobsManager, err error) {
 	manager = new(JobsManager)
 	manager.options = utils.NewSyncMapJobOption()
 	manager.runtime = utils.NewSyncMapCron()
 	manager.entryIDSet = utils.NewSyncMapEntryID()
 	manager.logging = logging
-	manager.schema = schema.New()
+	manager.schema = schema
 	var jobOptions []types.JobOption
 	jobOptions, err = manager.schema.Lists()
 	if err != nil {

@@ -42,19 +42,19 @@ func TestMain(m *testing.M) {
 
 func TestController_Put(t *testing.T) {
 	response, err := client.Put(context.Background(), &pb.PutParameter{
-		Identity: "test",
+		Identity: "test-1",
 		TimeZone: "Asia/Shanghai",
 		Start:    true,
 		Entries: map[string]*pb.EntryOption{
 			"task1": {
 				CronTime: "*/10 * * * * *",
-				Url:      "http://localhost:3000/task1",
+				Url:      "http://mac:3000/task1",
 				Headers:  []byte(`{"x-token":"l51aM51gp43606o2"}`),
 				Body:     []byte(`{"name":"task1"}`),
 			},
 			"task2": {
 				CronTime: "*/20 * * * * *",
-				Url:      "http://localhost:3000/task2",
+				Url:      "http://mac:3000/task2",
 				Headers:  []byte(`{"x-token":"GGlxNXfMyJb5IKuL"}`),
 				Body:     []byte(`{"name":"task2"}`),
 			},
@@ -68,6 +68,25 @@ func TestController_Put(t *testing.T) {
 	} else {
 		t.Log(response.Msg)
 	}
+	response, err = client.Put(context.Background(), &pb.PutParameter{
+		Identity: "test-2",
+		TimeZone: "Asia/Shanghai",
+		Start:    true,
+		Entries: map[string]*pb.EntryOption{
+			"task1": {
+				CronTime: "*/10 * * * * *",
+				Url:      "http://mac:3000/task3",
+				Headers:  []byte(`{"x-token":"ymNS2ZZzKKbqWpVm"}`),
+				Body:     []byte(`{"name":"task3"}`),
+			},
+			"task2": {
+				CronTime: "*/20 * * * * *",
+				Url:      "http://mac:3000/task4",
+				Headers:  []byte(`{"x-token":"AFAghq7Nc8S5gDr4"}`),
+				Body:     []byte(`{"name":"task4"}`),
+			},
+		},
+	})
 }
 
 func TestController_Get(t *testing.T) {
@@ -148,13 +167,13 @@ func BenchmarkController_Put(b *testing.B) {
 			Entries: map[string]*pb.EntryOption{
 				"task1": {
 					CronTime: "*/10 * * * * *",
-					Url:      "http://localhost:3000/task1",
+					Url:      "http://mac:3000/task1",
 					Headers:  []byte(`{"x-token":"l51aM51gp43606o2"}`),
 					Body:     []byte(`{"name":"task1"}`),
 				},
 				"task2": {
 					CronTime: "*/20 * * * * *",
-					Url:      "http://localhost:3000/task2",
+					Url:      "http://mac:3000/task2",
 					Headers:  []byte(`{"x-token":"GGlxNXfMyJb5IKuL"}`),
 					Body:     []byte(`{"name":"task2"}`),
 				},
