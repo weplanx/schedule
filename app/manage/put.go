@@ -1,7 +1,7 @@
 package manage
 
 import (
-	"encoding/json"
+	jsoniter "github.com/json-iterator/go"
 	"github.com/robfig/cron/v3"
 	"schedule-microservice/app/actions"
 	"schedule-microservice/app/types"
@@ -38,10 +38,8 @@ func (c *JobsManager) addTask(identity string, taskID string) {
 		var message map[string]interface{}
 		var bodyRecord interface{}
 		bodyRaw, ok := option.Body.(string)
-		if ok && json.Valid([]byte(bodyRaw)) {
-			json.Unmarshal([]byte(bodyRaw), &bodyRecord)
-		} else {
-			bodyRecord = option.Body
+		if ok && jsoniter.Valid([]byte(bodyRaw)) {
+			jsoniter.Unmarshal([]byte(bodyRaw), &bodyRecord)
 		}
 		if len(errs) != 0 {
 			msg := make([]string, len(errs))
@@ -59,8 +57,12 @@ func (c *JobsManager) addTask(identity string, taskID string) {
 			}
 		} else {
 			var responseRecord interface{}
-			if json.Valid(body) {
-				json.Unmarshal(body, &responseRecord)
+			if jsoniter.Valid(body) {
+				jsoniter.Unmarshal(body, &responseRecord)
+			} else {
+				responseRecord = map[string]interface{}{
+					"raw": string(body),
+				}
 			}
 			message = map[string]interface{}{
 				"Identity": identity,
