@@ -23,17 +23,19 @@ services:
       - ./schedule/log:/app/log
     ports:
       - 6000:6000
-      - 6001:6001
 ```
 
 ## Configuration
 
 For configuration, please refer to `config/config.example.yml`
 
-- **debug** `bool` Start debugging, ie `net/http/pprof`, access address is`http://localhost:6060`
+- **debug** `bool` Start debugging, ie `net/http/pprof`, access address is `http://localhost:6060`
 - **listen** `string` Microservice listening address
 - **logging** `object` Log configuration
     - **storage** `string` Local log storage directory
+    - **transfer** `object` [elastic-transfer](https://github.com/codexset/elastic-transfer) service
+      - **listen** `string` host
+      - **id** `string` transfer id
 
 ## Service
 
