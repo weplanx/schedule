@@ -52,8 +52,11 @@ func (c *JobsManager) addTask(identity string, taskID string) {
 				"Url":      option.Url,
 				"Header":   option.Headers,
 				"Body":     bodyRecord,
-				"Msg":      msg,
-				"Time":     time.Now().Unix(),
+				"Status":   false,
+				"Response": map[string]interface{}{
+					"errs": msg,
+				},
+				"Time": time.Now().Unix(),
 			}
 		} else {
 			var responseRecord interface{}
@@ -70,6 +73,7 @@ func (c *JobsManager) addTask(identity string, taskID string) {
 				"Url":      option.Url,
 				"Header":   option.Headers,
 				"Body":     bodyRecord,
+				"Status":   true,
 				"Response": responseRecord,
 				"Time":     time.Now().Unix(),
 			}
