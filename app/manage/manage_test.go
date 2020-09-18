@@ -1,9 +1,11 @@
 package manage
 
 import (
-	"encoding/json"
+	jsoniter "github.com/json-iterator/go"
 	"log"
 	"os"
+	"schedule-microservice/app/logging"
+	"schedule-microservice/app/schema"
 	"schedule-microservice/app/types"
 	"testing"
 )
@@ -14,17 +16,19 @@ var option types.JobOption
 func TestMain(m *testing.M) {
 	os.Chdir("../..")
 	var err error
-	manager, err = NewJobsManager(&types.LoggingOption{})
+	dataset := schema.New()
+	logger := logging.NewLogging(types.LoggingOption{})
+	manager, err = NewJobsManager(dataset, logger)
 	if err != nil {
 		log.Fatalln(err)
 	}
 	var body1 interface{}
-	err = json.Unmarshal([]byte(`{"name":"task1"}`), &body1)
+	err = jsoniter.Unmarshal([]byte(`{"name":"task1"}`), &body1)
 	if err != nil {
 		log.Fatalln(err)
 	}
 	var body2 interface{}
-	err = json.Unmarshal([]byte(`{"name":"task2"}`), &body2)
+	err = jsoniter.Unmarshal([]byte(`{"name":"task2"}`), &body2)
 	if err != nil {
 		log.Fatalln(err)
 	}

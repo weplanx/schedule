@@ -1,7 +1,7 @@
 package schema
 
 import (
-	"encoding/json"
+	jsoniter "github.com/json-iterator/go"
 	"os"
 	"schedule-microservice/app/types"
 	"testing"
@@ -18,12 +18,12 @@ func TestMain(m *testing.M) {
 func TestSchema_Update(t *testing.T) {
 	var err error
 	var body1 interface{}
-	err = json.Unmarshal([]byte(`{"name":"task1"}`), &body1)
+	err = jsoniter.Unmarshal([]byte(`{"name":"task1"}`), &body1)
 	if err != nil {
 		t.Fatal(err)
 	}
 	var body2 interface{}
-	err = json.Unmarshal([]byte(`{"name":"task2"}`), &body2)
+	err = jsoniter.Unmarshal([]byte(`{"name":"task2"}`), &body2)
 	if err != nil {
 		t.Fatal(err)
 	}

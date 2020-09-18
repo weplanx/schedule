@@ -2,15 +2,15 @@ package logging
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
+	jsoniter "github.com/json-iterator/go"
 	"schedule-microservice/app/types"
 	pb "schedule-microservice/transfer"
 )
 
 func (c *Logging) forTransfer(push *types.LoggingPush) (err error) {
 	var data []byte
-	data, err = json.Marshal(push.Message)
+	data, err = jsoniter.Marshal(push.Message)
 	if err != nil {
 
 		return
