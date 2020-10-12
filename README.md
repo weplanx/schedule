@@ -2,11 +2,11 @@
 
 Manage scheduled tasks using gRPC
 
-[![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/codexset/schedule-microservice?style=flat-square)](https://github.com/codexset/schedule-microservice)
-[![Github Actions](https://img.shields.io/github/workflow/status/codexset/schedule-microservice/release?style=flat-square)](https://github.com/codexset/schedule-microservice/actions)
+[![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/kainonly/schedule-microservice?style=flat-square)](https://github.com/kainonly/schedule-microservice)
+[![Github Actions](https://img.shields.io/github/workflow/status/kainonly/schedule-microservice/release?style=flat-square)](https://github.com/kainonly/schedule-microservice/actions)
 [![Image Size](https://img.shields.io/docker/image-size/kainonly/schedule-microservice?style=flat-square)](https://hub.docker.com/r/kainonly/schedule-microservice)
 [![Docker Pulls](https://img.shields.io/docker/pulls/kainonly/schedule-microservice.svg?style=flat-square)](https://hub.docker.com/r/kainonly/schedule-microservice)
-[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](https://raw.githubusercontent.com/codexset/schedule-microservice/master/LICENSE)
+[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](https://raw.githubusercontent.com/kainonly/schedule-microservice/master/LICENSE)
 
 ## Setup
 
@@ -33,7 +33,7 @@ For configuration, please refer to `config/config.example.yml`
 - **listen** `string` Microservice listening address
 - **logging** `object` Log configuration
     - **storage** `string` Local log storage directory
-    - **transfer** `object` [elastic-transfer](https://github.com/codexset/elastic-transfer) service
+    - **transfer** `object` [elastic-transfer](https://github.com/kainonly/elastic-transfer) service
       - **listen** `string` host
       - **id** `string` transfer id
 
