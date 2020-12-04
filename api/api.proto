@@ -23,7 +23,7 @@ service API {
   }
   rpc Put (Option) returns (google.protobuf.Empty) {
     option (google.api.http) = {
-      put: "/schedules",
+      put: "/schedule",
       body: "*",
     };
   }

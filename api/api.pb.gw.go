@@ -539,7 +539,7 @@ var (
 
 	pattern_API_All_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0}, []string{"schedules"}, ""))
 
-	pattern_API_Put_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0}, []string{"schedules"}, ""))
+	pattern_API_Put_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0}, []string{"schedule"}, ""))
 
 	pattern_API_Delete_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0}, []string{"schedule"}, ""))
 
