@@ -1,16 +1,13 @@
 syntax = "proto3";
 package elastic.transfer;
-service Router {
-  rpc Push (PushParameter) returns (Response) {
-  }
+option go_package = "schedule-microservice/gen/go/elastic/transfer";
+import "google/protobuf/empty.proto";
+
+service API {
+  rpc Push (Body) returns (google.protobuf.Empty) {}
 }
 
-message Response {
-  uint32 error = 1;
-  string msg = 2;
-}
-
-message PushParameter {
-  string identity = 1;
-  bytes data = 2;
+message Body {
+  string id = 1;
+  bytes content = 2;
 }

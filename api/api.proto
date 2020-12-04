@@ -1,0 +1,74 @@
+syntax = "proto3";
+package schedule;
+option go_package = "schedule-microservice/gen/go/schedule";
+import "google/protobuf/empty.proto";
+import "google/api/annotations.proto";
+
+service API {
+  rpc Get (ID) returns (Option) {
+    option (google.api.http) = {
+      get: "/schedule",
+    };
+  }
+  rpc Lists (IDs) returns (Options) {
+    option (google.api.http) = {
+      post: "/schedules",
+      body: "*"
+    };
+  }
+  rpc All (google.protobuf.Empty) returns (IDs) {
+    option (google.api.http) = {
+      get: "/schedules",
+    };
+  }
+  rpc Put (Option) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/schedules",
+      body: "*",
+    };
+  }
+  rpc Delete (ID) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/schedule",
+    };
+  }
+  rpc Running (Status) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/running",
+      body: "*",
+    };
+  }
+}
+
+message ID {
+  string id = 1;
+}
+
+message IDs {
+  repeated string ids = 1;
+}
+
+message Option {
+  string identity = 1;
+  string time_zone = 2;
+  bool start = 3;
+  map<string, Entry> entries = 4;
+}
+
+message Options {
+  repeated Option options = 1;
+}
+
+message Entry {
+  string cron_time = 1;
+  string url = 2;
+  bytes headers = 3;
+  bytes body = 4;
+  int64 next_date = 5;
+  int64 last_date = 6;
+}
+
+message Status {
+  string identity = 1;
+  bool running = 2;
+}

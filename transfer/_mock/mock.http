@@ -1,0 +1,14 @@
+GET {{url}}/transfers
+
+###
+
+PUT {{url}}/transfer
+Content-Type: application/json
+
+{
+  "id": "schedule",
+  "index": "schedule-logs-alpha",
+  "validate": "{\"type\":\"object\"}",
+  "topic": "logs.schedule",
+  "key": ""
+}
