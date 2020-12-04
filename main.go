@@ -8,7 +8,7 @@ import (
 
 func main() {
 	fx.New(
-		//fx.NopLogger,
+		fx.NopLogger,
 		fx.Provide(
 			bootstrap.LoadConfiguration,
 			bootstrap.InitializeSchema,

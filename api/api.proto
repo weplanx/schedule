@@ -49,7 +49,7 @@ message IDs {
 }
 
 message Option {
-  string identity = 1;
+  string id = 1;
   string time_zone = 2;
   bool start = 3;
   map<string, Entry> entries = 4;
@@ -69,6 +69,6 @@ message Entry {
 }
 
 message Status {
-  string identity = 1;
+  string id = 1;
   bool running = 2;
 }

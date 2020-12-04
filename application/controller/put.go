@@ -2,41 +2,41 @@ package controller
 
 import (
 	"context"
+	"github.com/go-playground/validator/v10"
 	"github.com/golang/protobuf/ptypes/empty"
+	jsoniter "github.com/json-iterator/go"
 	pb "schedule-microservice/api"
+	"schedule-microservice/config/options"
 )
 
-func (c *controller) Put(_ context.Context, option *pb.Option) (*empty.Empty, error) {
-	//var err error
-	//entryOption := make(map[string]*types.EntryOption)
-	//for taskID, val := range param.Entries {
-	//	var headers map[string]string
-	//	err = jsoniter.Unmarshal(val.Headers, &headers)
-	//	if err != nil {
-	//		return c.response(err)
-	//	}
-	//	var body interface{}
-	//	err = jsoniter.Unmarshal(val.Body, &body)
-	//	if err != nil {
-	//		return c.response(err)
-	//	}
-	//	entryOption[taskID] = &types.EntryOption{
-	//		CronTime: val.CronTime,
-	//		Url:      val.Url,
-	//		Headers:  headers,
-	//		Body:     body,
-	//		NextDate: time.Time{},
-	//		LastDate: time.Time{},
-	//	}
-	//}
-	//err = c.manager.Put(types.JobOption{
-	//	Identity: param.Identity,
-	//	TimeZone: param.TimeZone,
-	//	Start:    param.Start,
-	//	Entries:  entryOption,
-	//})
-	//if err != nil {
-	//	return c.response(err)
-	//}
-	return nil, nil
+func (c *controller) Put(_ context.Context, option *pb.Option) (_ *empty.Empty, err error) {
+	opt := options.JobOption{
+		Identity: option.Id,
+		TimeZone: option.TimeZone,
+		Start:    option.Start,
+		Entries:  nil,
+	}
+	opt.Entries = make(map[string]*options.EntryOption)
+	for key, value := range option.Entries {
+		if err = validator.New().Var(value.Headers, "json"); err != nil {
+			return
+		}
+		var headers map[string]string
+		jsoniter.Unmarshal(value.Headers, &headers)
+		if err = validator.New().Var(value.Body, "json"); err != nil {
+			return
+		}
+		var body map[string]interface{}
+		jsoniter.Unmarshal(value.Body, &body)
+		opt.Entries[key] = &options.EntryOption{
+			CronTime: value.CronTime,
+			Url:      value.Url,
+			Headers:  headers,
+			Body:     body,
+		}
+	}
+	if err = c.Job.Put(opt); err != nil {
+		return
+	}
+	return &empty.Empty{}, nil
 }

@@ -7,5 +7,8 @@ import (
 )
 
 func (c *controller) Delete(_ context.Context, option *pb.ID) (*empty.Empty, error) {
-	return nil, nil
+	if err := c.Job.Delete(option.Id); err != nil {
+		return nil, err
+	}
+	return &empty.Empty{}, nil
 }

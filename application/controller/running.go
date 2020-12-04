@@ -7,9 +7,8 @@ import (
 )
 
 func (c *controller) Running(_ context.Context, option *pb.Status) (*empty.Empty, error) {
-	//err := c.manager.Running(param.Identity, param.Running)
-	//if err != nil {
-	//	return c.response(err)
-	//}
-	return nil, nil
+	if err := c.Job.Running(option.Id, option.Running); err != nil {
+		return nil, err
+	}
+	return &empty.Empty{}, nil
 }

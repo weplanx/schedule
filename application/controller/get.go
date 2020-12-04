@@ -6,5 +6,5 @@ import (
 )
 
 func (c *controller) Get(_ context.Context, option *pb.ID) (*pb.Option, error) {
-	return nil, nil
+	return c.find(option.Id)
 }

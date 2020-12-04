@@ -2,6 +2,7 @@ package job
 
 import (
 	"errors"
+	"github.com/robfig/cron/v3"
 	"go.uber.org/fx"
 	"schedule-microservice/application/service/filelog"
 	"schedule-microservice/application/service/job/utils"
@@ -45,6 +46,13 @@ func New(dep *Dependency) (c *Job, err error) {
 		}
 	}
 	return
+}
+
+func (c *Job) Get(identity string) (*options.JobOption, *cron.Cron, map[string]cron.EntryID, error) {
+	if c.Options.Empty(identity) {
+		return nil, nil, nil, NotExists
+	}
+	return c.Options.Get(identity), c.Runtime.Get(identity), c.EntryIDSet.Get(identity), nil
 }
 
 func (c *Job) termination(identity string) {
