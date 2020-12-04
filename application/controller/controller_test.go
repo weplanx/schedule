@@ -2,188 +2,129 @@ package controller
 
 import (
 	"context"
-	"github.com/sirupsen/logrus"
+	"github.com/golang/protobuf/ptypes/empty"
 	"google.golang.org/grpc"
-	"gopkg.in/yaml.v3"
-	"io/ioutil"
+	"log"
 	"os"
-	"schedule-microservice/app/types"
-	pb "schedule-microservice/router"
-	"strconv"
+	pb "schedule-microservice/api"
+	"schedule-microservice/bootstrap"
+	"schedule-microservice/config"
 	"testing"
 )
 
-var client pb.RouterClient
+var client pb.APIClient
 
 func TestMain(m *testing.M) {
-	os.Chdir("../..")
-	if _, err := os.Stat("./config/autoload"); os.IsNotExist(err) {
-		os.Mkdir("./config/autoload", os.ModeDir)
+	os.Chdir("../../")
+	var err error
+	var cfg *config.Config
+	if cfg, err = bootstrap.LoadConfiguration(); err != nil {
+		log.Fatalln(err)
 	}
-	if _, err := os.Stat("./config/config.yml"); os.IsNotExist(err) {
-		logrus.Fatalln("The service configuration file does not exist")
+	var conn *grpc.ClientConn
+	if conn, err = grpc.Dial(cfg.Listen, grpc.WithInsecure()); err != nil {
+		log.Fatalln(err)
 	}
-	cfgByte, err := ioutil.ReadFile("./config/config.yml")
-	if err != nil {
-		logrus.Fatalln("Failed to read service configuration file", err)
-	}
-	config := types.Config{}
-	err = yaml.Unmarshal(cfgByte, &config)
-	if err != nil {
-		logrus.Fatalln("Service configuration file parsing failed", err)
-	}
-	grpcConn, err := grpc.Dial(config.Listen, grpc.WithInsecure())
-	if err != nil {
-		logrus.Fatalln(err)
-	}
-	client = pb.NewRouterClient(grpcConn)
+	client = pb.NewAPIClient(conn)
 	os.Exit(m.Run())
 }
 
 func TestController_Put(t *testing.T) {
-	response, err := client.Put(context.Background(), &pb.PutParameter{
-		Identity: "test-1",
+	_, err := client.Put(context.Background(), &pb.Option{
+		Id:       "debug-A",
 		TimeZone: "Asia/Shanghai",
 		Start:    true,
-		Entries: map[string]*pb.EntryOption{
-			"task1": {
+		Entries: map[string]*pb.Entry{
+			"entry-1": {
 				CronTime: "*/10 * * * * *",
-				Url:      "http://mac:3000/task1",
+				Url:      "http://mac:3000/entry-1",
 				Headers:  []byte(`{"x-token":"l51aM51gp43606o2"}`),
-				Body:     []byte(`{"name":"task1"}`),
+				Body:     []byte(`{"msg":"hello entry-A1"}`),
 			},
-			"task2": {
+			"entry-2": {
 				CronTime: "*/20 * * * * *",
-				Url:      "http://mac:3000/task2",
+				Url:      "http://mac:3000/entry-2",
 				Headers:  []byte(`{"x-token":"GGlxNXfMyJb5IKuL"}`),
-				Body:     []byte(`{"name":"task2"}`),
+				Body:     []byte(`{"msg":"hello entry-A2"}`),
 			},
 		},
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
-	if response.Error != 0 {
-		t.Error(response.Msg)
-	} else {
-		t.Log(response.Msg)
-	}
-	response, err = client.Put(context.Background(), &pb.PutParameter{
-		Identity: "test-2",
+	_, err = client.Put(context.Background(), &pb.Option{
+		Id:       "debug-B",
 		TimeZone: "Asia/Shanghai",
 		Start:    true,
-		Entries: map[string]*pb.EntryOption{
-			"task1": {
-				CronTime: "*/10 * * * * *",
+		Entries: map[string]*pb.Entry{
+			"entry-1": {
+				CronTime: "*/5 * * * * *",
 				Url:      "http://mac:3000/task3",
 				Headers:  []byte(`{"x-token":"ymNS2ZZzKKbqWpVm"}`),
-				Body:     []byte(`{"name":"task3"}`),
+				Body:     []byte(`{"msg":"hello entry-B1"}`),
 			},
-			"task2": {
-				CronTime: "*/20 * * * * *",
+			"entry-2": {
+				CronTime: "*/30 * * * * *",
 				Url:      "http://mac:3000/task4",
 				Headers:  []byte(`{"x-token":"AFAghq7Nc8S5gDr4"}`),
-				Body:     []byte(`{"name":"task4"}`),
+				Body:     []byte(`{"msg":"hello entry-B2"}`),
 			},
 		},
 	})
+	if err != nil {
+		t.Fatal(err)
+	}
 }
 
 func TestController_Get(t *testing.T) {
-	response, err := client.Get(context.Background(), &pb.GetParameter{
-		Identity: "test",
+	response, err := client.Get(context.Background(), &pb.ID{
+		Id: "debug-A",
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
-	if response.Error != 0 {
-		t.Error(response.Msg)
-	} else {
-		t.Log(response.Data)
-	}
+	t.Log(response)
 }
 
 func TestController_Lists(t *testing.T) {
-	response, err := client.Lists(context.Background(), &pb.ListsParameter{
-		Identity: []string{"test"},
+	response, err := client.Lists(context.Background(), &pb.IDs{
+		Ids: []string{"debug-A", "debug-B"},
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
-	if response.Error != 0 {
-		t.Error(response.Msg)
-	} else {
-		t.Log(response.Data)
-	}
+	t.Log(response)
 }
 
 func TestController_All(t *testing.T) {
-	response, err := client.All(context.Background(), &pb.NoParameter{})
+	response, err := client.All(context.Background(), &empty.Empty{})
 	if err != nil {
 		t.Fatal(err)
 	}
-	if response.Error != 0 {
-		t.Error(response.Msg)
-	} else {
-		t.Log(response.Data)
-	}
+	t.Log(response)
 }
 
 func TestController_Running(t *testing.T) {
-	response, err := client.Running(context.Background(), &pb.RunningParameter{
-		Identity: "test",
-		Running:  false,
+	_, err := client.Running(context.Background(), &pb.Status{
+		Id:      "debug-A",
+		Running: false,
 	})
 	if err != nil {
 		t.Fatal(err)
-	}
-	if response.Error != 0 {
-		t.Error(response.Msg)
-	} else {
-		t.Log(response.Msg)
 	}
 }
 
 func TestController_Delete(t *testing.T) {
-	response, err := client.Delete(context.Background(), &pb.DeleteParameter{
-		Identity: "test",
+	_, err := client.Delete(context.Background(), &pb.ID{
+		Id: "debug-A",
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
-	if response.Error != 0 {
-		t.Error(response.Msg)
-	} else {
-		t.Log(response.Msg)
-	}
-}
-
-func BenchmarkController_Put(b *testing.B) {
-	for i := 0; i < b.N; i++ {
-		response, err := client.Put(context.Background(), &pb.PutParameter{
-			Identity: "test-" + strconv.Itoa(i),
-			TimeZone: "Asia/Shanghai",
-			Start:    true,
-			Entries: map[string]*pb.EntryOption{
-				"task1": {
-					CronTime: "*/10 * * * * *",
-					Url:      "http://mac:3000/task1",
-					Headers:  []byte(`{"x-token":"l51aM51gp43606o2"}`),
-					Body:     []byte(`{"name":"task1"}`),
-				},
-				"task2": {
-					CronTime: "*/20 * * * * *",
-					Url:      "http://mac:3000/task2",
-					Headers:  []byte(`{"x-token":"GGlxNXfMyJb5IKuL"}`),
-					Body:     []byte(`{"name":"task2"}`),
-				},
-			},
-		})
-		if err != nil {
-			b.Fatal(err)
-		}
-		if response.Error != 0 {
-			b.Error(response.Msg)
-		}
+	_, err = client.Delete(context.Background(), &pb.ID{
+		Id: "debug-B",
+	})
+	if err != nil {
+		t.Fatal(err)
 	}
 }
