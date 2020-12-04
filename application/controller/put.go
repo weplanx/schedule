@@ -18,12 +18,12 @@ func (c *controller) Put(_ context.Context, option *pb.Option) (_ *empty.Empty, 
 	}
 	opt.Entries = make(map[string]*options.EntryOption)
 	for key, value := range option.Entries {
-		if err = validator.New().Var(value.Headers, "json"); err != nil {
+		if err = validator.New().Var(string(value.Headers), "json"); err != nil {
 			return
 		}
 		var headers map[string]string
 		jsoniter.Unmarshal(value.Headers, &headers)
-		if err = validator.New().Var(value.Body, "json"); err != nil {
+		if err = validator.New().Var(string(value.Body), "json"); err != nil {
 			return
 		}
 		var body map[string]interface{}

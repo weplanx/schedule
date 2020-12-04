@@ -59,13 +59,13 @@ func TestController_Put(t *testing.T) {
 		Entries: map[string]*pb.Entry{
 			"entry-1": {
 				CronTime: "*/5 * * * * *",
-				Url:      "http://mac:3000/task3",
+				Url:      "http://mac:3000/entry-1",
 				Headers:  []byte(`{"x-token":"ymNS2ZZzKKbqWpVm"}`),
 				Body:     []byte(`{"msg":"hello entry-B1"}`),
 			},
 			"entry-2": {
 				CronTime: "*/30 * * * * *",
-				Url:      "http://mac:3000/task4",
+				Url:      "http://mac:3000/entry-2",
 				Headers:  []byte(`{"x-token":"AFAghq7Nc8S5gDr4"}`),
 				Body:     []byte(`{"msg":"hello entry-B2"}`),
 			},
