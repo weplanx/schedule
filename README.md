@@ -1,9 +1,9 @@
-# Schedule gRPC
+# Schedule Microservice
 
 Manage scheduled tasks using gRPC
 
-[![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/kainonly/schedule-microservice?style=flat-square)](https://github.com/kainonly/schedule-microservice)
-[![Github Actions](https://img.shields.io/github/workflow/status/kainonly/schedule-microservice/release?style=flat-square)](https://github.com/kainonly/schedule-microservice/actions)
+[![Github Actions](https://img.shields.io/github/workflow/status/kain-lab/schedule-microservice/release?style=flat-square)](https://github.com/kain-lab/schedule-microservice/actions)
+[![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/kain-lab/schedule-microservice?style=flat-square)](https://github.com/kain-lab/schedule-microservice)
 [![Image Size](https://img.shields.io/docker/image-size/kainonly/schedule-microservice?style=flat-square)](https://hub.docker.com/r/kainonly/schedule-microservice)
 [![Docker Pulls](https://img.shields.io/docker/pulls/kainonly/schedule-microservice.svg?style=flat-square)](https://hub.docker.com/r/kainonly/schedule-microservice)
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](https://raw.githubusercontent.com/kainonly/schedule-microservice/master/LICENSE)
@@ -23,6 +23,7 @@ services:
       - ./schedule/log:/app/log
     ports:
       - 6000:6000
+      - 8080:8080
 ```
 
 ## Configuration
@@ -30,12 +31,12 @@ services:
 For configuration, please refer to `config/config.example.yml`
 
 - **debug** `string` Start debugging, ie `net/http/pprof`, access address is `http://localhost:6060`
-- **listen** `string` Microservice listening address
-- **logging** `object` Log configuration
-    - **storage** `string` Local log storage directory
-    - **transfer** `object` [elastic-transfer](https://github.com/kainonly/elastic-transfer) service
-      - **listen** `string` host
-      - **id** `string` transfer id
+- **listen** `string` grpc server listening address
+- **gateway** `string` API gateway server listening address
+- **filelog** `string` file log
+- **transfer** `object` [elastic-transfer](https://github.com/kain-lab/elastic-transfer) service
+  - **listen** `string` host
+  - **pipe** `string` id
 
 ## Service
 
@@ -44,267 +45,304 @@ The service is based on gRPC and you can view `router/router.proto`
 ```proto
 syntax = "proto3";
 package schedule;
-service Router {
-    rpc Get (GetParameter) returns (GetResponse) {
-    }
+option go_package = "schedule-microservice/gen/go/schedule";
+import "google/protobuf/empty.proto";
+import "google/api/annotations.proto";
 
-    rpc Lists (ListsParameter) returns (ListsResponse) {
-    }
-
-    rpc All (NoParameter) returns (AllResponse) {
-    }
-
-    rpc Put (PutParameter) returns (Response) {
-    }
-
-    rpc Delete (DeleteParameter) returns (Response) {
-    }
-
-    rpc Running (RunningParameter) returns (Response) {
-    }
+service API {
+  rpc Get (ID) returns (Option) {
+    option (google.api.http) = {
+      get: "/schedule",
+    };
+  }
+  rpc Lists (IDs) returns (Options) {
+    option (google.api.http) = {
+      post: "/schedules",
+      body: "*"
+    };
+  }
+  rpc All (google.protobuf.Empty) returns (IDs) {
+    option (google.api.http) = {
+      get: "/schedules",
+    };
+  }
+  rpc Put (Option) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/schedule",
+      body: "*",
+    };
+  }
+  rpc Delete (ID) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/schedule",
+    };
+  }
+  rpc Running (Status) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/running",
+      body: "*",
+    };
+  }
 }
 
-message NoParameter {
+message ID {
+  string id = 1;
 }
 
-message Response {
-    uint32 error = 1;
-    string msg = 2;
+message IDs {
+  repeated string ids = 1;
 }
 
-message EntryOption {
-    string cron_time = 1;
-    string url = 2;
-    bytes headers = 3;
-    bytes body = 4;
+message Option {
+  string id = 1;
+  string time_zone = 2;
+  bool start = 3;
+  map<string, Entry> entries = 4;
 }
 
-message EntryOptionWithTime {
-    string cron_time = 1;
-    string url = 2;
-    bytes headers = 3;
-    bytes body = 4;
-    int64 next_date = 5;
-    int64 last_date = 6;
+message Options {
+  repeated Option options = 1;
 }
 
-message Information {
-    string identity = 1;
-    bool start = 2;
-    string time_zone = 3;
-    map<string, EntryOptionWithTime> entries = 4;
+message Entry {
+  string cron_time = 1;
+  string url = 2;
+  bytes headers = 3;
+  bytes body = 4;
+  int64 next_date = 5;
+  int64 last_date = 6;
 }
 
-message GetParameter {
-    string identity = 1;
-}
-
-message GetResponse {
-    uint32 error = 1;
-    string msg = 2;
-    Information data = 3;
-}
-
-message ListsParameter {
-    repeated string identity = 1;
-}
-
-message ListsResponse {
-    uint32 error = 1;
-    string msg = 2;
-    repeated Information data = 3;
-}
-
-message AllResponse {
-    uint32 error = 1;
-    string msg = 2;
-    repeated string data = 3;
-}
-
-message PutParameter {
-    string identity = 1;
-    string time_zone = 2;
-    bool start = 3;
-    map<string, EntryOption> entries = 4;
-}
-
-message DeleteParameter {
-    string identity = 1;
-}
-
-message RunningParameter {
-    string identity = 1;
-    bool running = 2;
+message Status {
+  string id = 1;
+  bool running = 2;
 }
 ```
 
-#### rpc Get (GetParameter) returns (GetResponse) {}
+## Get (ID) returns (Option)
 
-Get job information
+Get job configuration
 
-- GetParameter
-  - **identity** `string` job id
-- GetResponse
-  - **error** `uint32` error code, `0` is normal
-  - **msg** `string` error feedback
-  - **data** `Information` result
-    - **identity** `string` job id
-    - **start** `bool` operating status
-    - **time_zone** `string` time zone, [tz database](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones)
-    - **entries** `map<string, EntryOptionWithTime>` The task workflow
-      - **string** task id
-      - EntryOptionWithTime
-        - **cron_time** `string` CronTab rule
-        - **url** `string` callback hook url
-        - **headers** `bytes`
-        - **body** `bytes` 
-        - **next_date** `int64` next run unixtime
-        - **last_date** `int64` last run unixtime
+### RPC
 
-```golang
-client := pb.NewRouterClient(conn)
-response, err := client.Get(
-    context.Background(),
-    &pb.GetParameter{
-        Identity: "test",
-    },
-)
-```
-
-#### rpc Lists (ListsParameter) returns (ListsResponse) {}
-
-Get job information in batches
-
-- ListsParameter
-  - **identity** `[]string` job IDs
-- ListsResponse
-  - **error** `uint32` error code, `0` is normal
-  - **msg** `string` error feedback
-  - **data** `[]Information` result
-    - **identity** `string` job id
-    - **start** `bool` operating status
-    - **time_zone** `string` time zone, [tz database](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones)
-    - **entries** `map<string, EntryOptionWithTime>` The task workflow
-      - **string** task id
-      - EntryOptionWithTime
-        - **cron_time** `string` CronTab rule
-        - **url** `string` callback hook url
-        - **headers** `bytes`
-        - **body** `bytes` 
-        - **next_date** `int64` next run unixtime
-        - **last_date** `int64` last run unixtime
-
-```golang
-client := pb.NewRouterClient(conn)
-response, err := client.Lists(
-    context.Background(),
-    &pb.ListsParameter{
-        Identity: []string{"test", "other"},
-    },
-)
-```
-
-#### rpc All (NoParameter) returns (AllResponse) {}
-
-Get all job IDs
-
-- NoParameter
-- AllResponse
-  - **error** `uint32` error code, `0` is normal
-  - **msg** `string` error feedback
-  - **data** `[]string` job IDs
-
-```golang
-client := pb.NewRouterClient(conn)
-response, err := client.All(
-    context.Background(),
-    &pb.NoParameter{},
-)
-```
-
-#### rpc Put (PutParameter) returns (Response) {}
-
-Add or update job
-
-- PutParameter
-  - **identity** `string` job id
-  - **time_zone** `string` time zone, [tz database](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones)
+- **ID**
+  - **id** `string` job id
+- **Option**
+  - **id** `string` job id
+  - **time_zone** `string` time zone, https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
   - **start** `bool` operating status
-  - **entries** `map<string, EntryOption>` The task workflow
+  - **entries** `map<string, Entry>` the task workflow
     - **string** task id
-    - EntryOptionWithTime
-      - **cron_time** `string` CronTab rule
+    - **Entry**
+      - **cron_time** `string` cronTab rule
       - **url** `string` callback hook url
       - **headers** `bytes`
       - **body** `bytes` 
-- Response
-  - **error** `uint32` error code, `0` is normal
-  - **msg** `string` error feedback
+      - **next_date** `int64` next run unixtime
+      - **last_date** `int64` last run unixtime
 
 ```golang
-client := pb.NewRouterClient(conn)
-response, err := client.Put(
-    context.Background(),
-    &pb.PutParameter{
-        Identity: "test",
-        TimeZone: "Asia/Shanghai",
-        Start:    true,
-        Entries: map[string]*pb.EntryOption{
-            "task1": &pb.EntryOption{
-                CronTime: "*/5 * * * * *",
-                Url:      "http://localhost:3000",
-                Headers:  []byte(`{"x-token":"abc"}`),
-                Body:     []byte(`{"name":"task1"}`),
-            },
-            "task2": &pb.EntryOption{
-                CronTime: "*/10 * * * * *",
-                Url:      "http://localhost:3000",
-                Headers:  []byte(`{"x-token":"abc"}`),
-                Body:     []byte(`{"name":"task2"}`),
-            },
-        },
-    },
-)
+client := pb.NewAPIClient(conn)
+response, err := client.Get(context.Background(), &pb.ID{
+  Id: "debug-A",
+})
 ```
 
-#### rpc Delete (DeleteParameter) returns (Response) {}
+### API Gateway
 
-remvoe job
+- **GET** `/schedule`
 
-- DeleteParameter
-  - **identity** `string` job id
-- Response
-  - **error** `uint32` error code, `0` is normal
-  - **msg** `string` error feedback
+```http
+GET /schedule?id=debug-C HTTP/1.1
+Host: localhost:8080
+```
+
+## Lists (IDs) returns (Options)
+
+Lists job configuration
+
+### RPC
+
+- **IDs**
+  - **ids** `[]string` job IDs
+- **Options**
+  - **options** `[]Option` result
+    - **id** `string` job id
+    - **time_zone** `string` time zone, https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+    - **start** `bool` operating status
+    - **entries** `map<string, Entry>` the task workflow
+      - **string** task id
+      - **Entry**
+        - **cron_time** `string` cronTab rule
+        - **url** `string` callback hook url
+        - **headers** `bytes`
+        - **body** `bytes` 
+        - **next_date** `int64` next run unixtime
+        - **last_date** `int64` last run unixtime
 
 ```golang
-client := pb.NewRouterClient(conn)
-response, err := client.Delete(
-    context.Background(),
-    &pb.DeleteParameter{
-        Identity: "test",
-    },
-)
+client := pb.NewAPIClient(conn)
+response, err := client.Lists(context.Background(), &pb.IDs{
+  Ids: []string{"debug-A"},
+})
 ```
 
-#### rpc Running (RunningParameter) returns (Response) {}
+### API Gateway
 
-Change operation status
+- **POST** `/schedules`
 
-- RunningParameter
-  - **identity** `string` job id
+```http
+POST /schedules HTTP/1.1
+Host: localhost:8080
+Content-Type: application/json
+
+{
+    "ids":["debug-C"]
+}
+```
+
+## All (google.protobuf.Empty) returns (IDs)
+
+Get all job configuration identifiers
+
+### RPC
+
+- **IDs**
+  - **ids** `[]string` job IDs
+
+```golang
+client := pb.NewAPIClient(conn)
+response, err := client.All(context.Background(), &empty.Empty{})
+```
+
+### API Gateway
+
+- **GET** `/schedules`
+
+```http
+GET /schedules HTTP/1.1
+Host: localhost:8080
+```
+
+## Put (Option) returns (google.protobuf.Empty)
+
+Put job configuration
+
+### RPC
+
+- **Option**
+  - **id** `string` job id
+  - **time_zone** `string` time zone, https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+  - **start** `bool` operating status
+  - **entries** `map<string, Entry>` the task workflow
+    - **string** task id
+    - **Entry**
+      - **cron_time** `string` cronTab rule
+      - **url** `string` callback hook url
+      - **headers** `bytes`
+      - **body** `bytes` 
+
+```golang
+client := pb.NewAPIClient(conn)
+_, err := client.Put(context.Background(), &pb.Option{
+  Id:       "debug-A",
+  TimeZone: "Asia/Shanghai",
+  Start:    true,
+  Entries: map[string]*pb.Entry{
+    "entry-1": {
+      CronTime: "*/10 * * * * *",
+      Url:      "http://mac:3000/entry-1",
+      Headers:  []byte(`{"x-token":"l51aM51gp43606o2"}`),
+      Body:     []byte(`{"msg":"hello entry-A1"}`),
+    },
+    "entry-2": {
+      CronTime: "*/20 * * * * *",
+      Url:      "http://mac:3000/entry-2",
+      Headers:  []byte(`{"x-token":"GGlxNXfMyJb5IKuL"}`),
+      Body:     []byte(`{"msg":"hello entry-A2"}`),
+    },
+  },
+})
+```
+
+### API Gateway
+
+- **PUT** `/schedule`
+
+```http
+PUT /schedule HTTP/1.1
+Host: localhost:8080
+Content-Type: application/json
+
+{
+    "id": "debug-C",
+    "time_zone": "Asia/Shanghai",
+    "start": true,
+    "entries": {
+        "entry": {
+            "cron_time": "*/10 * * * * *",
+            "url": "http://mac:3000/entry",
+            "headers": "eyJ4LXRva2VuIjoiMTIzNDU2In0=",
+            "body": "eyJtc2ciOiJoZWxsbyBlbnRyeSJ9"
+        }
+    }
+}
+```
+
+## Delete (ID) returns (google.protobuf.Empty)
+
+Remove job configuration
+
+### RPC
+
+- **ID**
+  - **id** `string` job id
+
+```golang
+client := pb.NewAPIClient(conn)
+_, err := client.Delete(context.Background(), &pb.ID{
+  Id: "debug-A",
+})
+```
+
+### API Gateway
+
+- **DELETE** `/schedule`
+
+```http
+DELETE /schedule?id=debug-C HTTP/1.1
+Host: localhost:8080
+```
+
+## Running (Status) returns (google.protobuf.Empty)
+
+Change job status
+
+### RPC
+
+- **Status**
+  - **id** `string` job id
   - **running** `bool` operating status
-- Response
-  - **error** `uint32` error code, `0` is normal
-  - **msg** `string` error feedback
 
 ```golang
-client := pb.NewRouterClient(conn)
-response, err := client.Running(
-    context.Background(),
-    &pb.RunningParameter{
-        Identity: "test",
-        Running:  false,
-    },
-)
+client := pb.NewAPIClient(conn)
+_, err := client.Running(context.Background(), &pb.Status{
+  Id:      "debug-A",
+  Running: false,
+})
+```
+
+### API Gateway
+
+- **PUT** `/running`
+
+```http
+PUT /running HTTP/1.1
+Host: localhost:8080
+Content-Type: application/json
+
+{
+    "id": "debug-C",
+    "running": false
+}
 ```
