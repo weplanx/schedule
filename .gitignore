@@ -21,7 +21,7 @@
 !.vscode/launch.json
 !.vscode/extensions.json
 
-/config/config.yml
-/config/autoload
-/go.sum
-/logs
+config-map.yml
+config.yml
+deployment.yml
+config/ssl

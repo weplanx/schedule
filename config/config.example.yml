@@ -1,0 +1,8 @@
+address: ":6001"
+tls: <TLS配置，非必须>
+  cert:
+  key:
+database:
+  uri: mongodb://<username>:<password>@<host>:<port>/<database>?authSource=<authSource>
+  name: <数据库名>
+  collection: <默认集合>
