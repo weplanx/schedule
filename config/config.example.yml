@@ -2,6 +2,7 @@ address: ":6001"
 tls: <TLS配置，非必须>
   cert:
   key:
+node: <节点ID>
 database:
   uri: mongodb://<username>:<password>@<host>:<port>/<database>?authSource=<authSource>
   name: <数据库名>

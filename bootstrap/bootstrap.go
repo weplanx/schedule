@@ -17,6 +17,7 @@ var Provides = wire.NewSet(
 	UseZap,
 	UseMongoDB,
 	UseDatabase,
+	UseSchedule,
 )
 
 // SetValues 初始化配置
@@ -53,4 +54,8 @@ func UseMongoDB(values *common.Values) (*mongo.Client, error) {
 
 func UseDatabase(client *mongo.Client, values *common.Values) *mongo.Database {
 	return client.Database(values.Database.Name)
+}
+
+func UseSchedule() *common.Schedule {
+	return common.NewSchedule()
 }

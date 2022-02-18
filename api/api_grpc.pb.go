@@ -19,9 +19,8 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type APIClient interface {
-	Create(ctx context.Context, in *CreateRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	Put(ctx context.Context, in *Schedule, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	Get(ctx context.Context, in *GetRequest, opts ...grpc.CallOption) (*GetReply, error)
-	Update(ctx context.Context, in *UpdateRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	Delete(ctx context.Context, in *DeleteRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
@@ -33,9 +32,9 @@ func NewAPIClient(cc grpc.ClientConnInterface) APIClient {
 	return &aPIClient{cc}
 }
 
-func (c *aPIClient) Create(ctx context.Context, in *CreateRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *aPIClient) Put(ctx context.Context, in *Schedule, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, "/transfer.API/Create", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/schedule.API/Put", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -44,16 +43,7 @@ func (c *aPIClient) Create(ctx context.Context, in *CreateRequest, opts ...grpc.
 
 func (c *aPIClient) Get(ctx context.Context, in *GetRequest, opts ...grpc.CallOption) (*GetReply, error) {
 	out := new(GetReply)
-	err := c.cc.Invoke(ctx, "/transfer.API/Get", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *aPIClient) Update(ctx context.Context, in *UpdateRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, "/transfer.API/Update", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/schedule.API/Get", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -62,7 +52,7 @@ func (c *aPIClient) Update(ctx context.Context, in *UpdateRequest, opts ...grpc.
 
 func (c *aPIClient) Delete(ctx context.Context, in *DeleteRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, "/transfer.API/Delete", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/schedule.API/Delete", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -73,9 +63,8 @@ func (c *aPIClient) Delete(ctx context.Context, in *DeleteRequest, opts ...grpc.
 // All implementations must embed UnimplementedAPIServer
 // for forward compatibility
 type APIServer interface {
-	Create(context.Context, *CreateRequest) (*emptypb.Empty, error)
+	Put(context.Context, *Schedule) (*emptypb.Empty, error)
 	Get(context.Context, *GetRequest) (*GetReply, error)
-	Update(context.Context, *UpdateRequest) (*emptypb.Empty, error)
 	Delete(context.Context, *DeleteRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedAPIServer()
 }
@@ -84,14 +73,11 @@ type APIServer interface {
 type UnimplementedAPIServer struct {
 }
 
-func (UnimplementedAPIServer) Create(context.Context, *CreateRequest) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
+func (UnimplementedAPIServer) Put(context.Context, *Schedule) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Put not implemented")
 }
 func (UnimplementedAPIServer) Get(context.Context, *GetRequest) (*GetReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
-}
-func (UnimplementedAPIServer) Update(context.Context, *UpdateRequest) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Update not implemented")
 }
 func (UnimplementedAPIServer) Delete(context.Context, *DeleteRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
@@ -109,20 +95,20 @@ func RegisterAPIServer(s grpc.ServiceRegistrar, srv APIServer) {
 	s.RegisterService(&API_ServiceDesc, srv)
 }
 
-func _API_Create_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CreateRequest)
+func _API_Put_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Schedule)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(APIServer).Create(ctx, in)
+		return srv.(APIServer).Put(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/transfer.API/Create",
+		FullMethod: "/schedule.API/Put",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(APIServer).Create(ctx, req.(*CreateRequest))
+		return srv.(APIServer).Put(ctx, req.(*Schedule))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -137,28 +123,10 @@ func _API_Get_Handler(srv interface{}, ctx context.Context, dec func(interface{}
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/transfer.API/Get",
+		FullMethod: "/schedule.API/Get",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(APIServer).Get(ctx, req.(*GetRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _API_Update_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UpdateRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(APIServer).Update(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/transfer.API/Update",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(APIServer).Update(ctx, req.(*UpdateRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -173,7 +141,7 @@ func _API_Delete_Handler(srv interface{}, ctx context.Context, dec func(interfac
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/transfer.API/Delete",
+		FullMethod: "/schedule.API/Delete",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(APIServer).Delete(ctx, req.(*DeleteRequest))
@@ -185,20 +153,16 @@ func _API_Delete_Handler(srv interface{}, ctx context.Context, dec func(interfac
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var API_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "transfer.API",
+	ServiceName: "schedule.API",
 	HandlerType: (*APIServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "Create",
-			Handler:    _API_Create_Handler,
+			MethodName: "Put",
+			Handler:    _API_Put_Handler,
 		},
 		{
 			MethodName: "Get",
 			Handler:    _API_Get_Handler,
-		},
-		{
-			MethodName: "Update",
-			Handler:    _API_Update_Handler,
 		},
 		{
 			MethodName: "Delete",

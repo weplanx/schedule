@@ -6,17 +6,18 @@ import (
 )
 
 type Inject struct {
-	Values *Values
-	Log    *zap.Logger
-	Mongo  *mongo.Client
-	Db     *mongo.Database
+	Values   *Values
+	Log      *zap.Logger
+	Mongo    *mongo.Client
+	Db       *mongo.Database
+	Schedule *Schedule
 }
 
 type Values struct {
-	Address   string   `yaml:"address"`
-	TLS       TLS      `yaml:"tls"`
-	Namespace string   `yaml:"namespace"`
-	Database  Database `yaml:"database"`
+	Address  string   `yaml:"address"`
+	TLS      TLS      `yaml:"tls"`
+	Node     string   `yaml:"node"`
+	Database Database `yaml:"database"`
 }
 
 type TLS struct {
@@ -28,4 +29,8 @@ type Database struct {
 	Uri        string `yaml:"uri"`
 	Name       string `yaml:"name"`
 	Collection string `yaml:"collection"`
+}
+
+func PointInt64(v int64) *int64 {
+	return &v
 }

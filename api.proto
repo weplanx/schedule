@@ -1,19 +1,26 @@
 syntax = "proto3";
-package transfer;
+package schedule;
 option go_package = "github.com/weplanx/schedule/api";
 import "google/protobuf/empty.proto";
 
 service API {
-  rpc Create(CreateRequest) returns (google.protobuf.Empty) {}
+  rpc Put(Schedule) returns (google.protobuf.Empty) {}
   rpc Get(GetRequest) returns (GetReply) {}
-  rpc Update(UpdateRequest) returns (google.protobuf.Empty) {}
   rpc Delete(DeleteRequest) returns (google.protobuf.Empty) {}
 }
 
-message CreateRequest {
-  string rule = 1;
+message Schedule {
+  string key = 1;
+  repeated Job jobs = 2;
+}
+
+message Job {
+  string spec = 1;
   string mode = 2;
   bytes option = 3;
+
+  optional int64 next_date = 4;
+  optional int64 last_date = 5;
 }
 
 message GetRequest {
@@ -21,20 +28,7 @@ message GetRequest {
 }
 
 message GetReply {
-  map<string, Info> data = 1;
-}
-
-message Info {
-  bool status = 1;
-  int64 next_date = 2;
-  int64 last_date = 3;
-}
-
-message UpdateRequest {
-  string key = 1;
-  string rule = 2;
-  string mode = 3;
-  bytes option = 4;
+  map<string, Schedule> data = 1;
 }
 
 message DeleteRequest {
