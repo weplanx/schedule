@@ -1,6 +1,7 @@
 package common
 
 import (
+	"github.com/weplanx/schedule/app"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.uber.org/zap"
 )
@@ -10,7 +11,7 @@ type Inject struct {
 	Log      *zap.Logger
 	Mongo    *mongo.Client
 	Db       *mongo.Database
-	Schedule *Schedule
+	Schedule *app.Schedule
 }
 
 type Values struct {
@@ -29,8 +30,4 @@ type Database struct {
 	Uri        string `yaml:"uri"`
 	Name       string `yaml:"name"`
 	Collection string `yaml:"collection"`
-}
-
-func PointInt64(v int64) *int64 {
-	return &v
 }

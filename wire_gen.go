@@ -25,11 +25,13 @@ func App(value *common.Values) (*grpc.Server, error) {
 		return nil, err
 	}
 	database := bootstrap.UseDatabase(client, value)
+	schedule := bootstrap.UseSchedule()
 	inject := &common.Inject{
-		Values: value,
-		Log:    logger,
-		Mongo:  client,
-		Db:     database,
+		Values:   value,
+		Log:      logger,
+		Mongo:    client,
+		Db:       database,
+		Schedule: schedule,
 	}
 	server, err := api.New(inject)
 	if err != nil {

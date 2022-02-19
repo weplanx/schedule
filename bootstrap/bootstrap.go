@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"github.com/google/wire"
+	"github.com/weplanx/schedule/app"
 	"github.com/weplanx/schedule/common"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -56,6 +57,6 @@ func UseDatabase(client *mongo.Client, values *common.Values) *mongo.Database {
 	return client.Database(values.Database.Name)
 }
 
-func UseSchedule() *common.Schedule {
-	return common.NewSchedule()
+func UseSchedule() *app.Schedule {
+	return app.NewSchedule()
 }

@@ -1,4 +1,4 @@
-package common
+package app
 
 type Job struct {
 	spec string
@@ -13,8 +13,8 @@ func NewJob(spec string, cmd func()) *Job {
 	}
 }
 
-// HttpCallbackJob Http回调工作
-func HttpCallbackJob(spec string, option map[string]interface{}) *Job {
+// HttpJob Http回调工作
+func HttpJob(spec string, option map[string]interface{}) *Job {
 	return NewJob(spec, func() {
 
 	})

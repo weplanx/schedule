@@ -6,6 +6,7 @@ import (
 	zlogging "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
 	recovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
 	"github.com/weplanx/schedule/common"
+	"github.com/weplanx/schedule/model"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -74,15 +75,12 @@ func New(i *common.Inject) (s *grpc.Server, err error) {
 		}); err != nil {
 		return
 	}
-	var schedules []map[string]interface{}
+	schedules := make([]model.Schedule, 0)
 	if err = cursor.All(ctx, &schedules); err != nil {
 		return
 	}
 	for _, v := range schedules {
-		if err = api.SetSchedule(
-			v["key"].(string),
-			v["jobs"].([]map[string]interface{}),
-		); err != nil {
+		if err = api.SetSchedule(v.Key, v.Jobs); err != nil {
 			return
 		}
 	}

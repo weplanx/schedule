@@ -4,7 +4,9 @@ import (
 	"context"
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/vmihailenco/msgpack/v5"
+	"github.com/weplanx/schedule/app"
 	"github.com/weplanx/schedule/common"
+	"github.com/weplanx/schedule/model"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -24,15 +26,15 @@ func (x *API) name() string {
 	return x.Values.Database.Collection
 }
 
-func (x *API) SetSchedule(key string, jobsOpt []map[string]interface{}) (err error) {
-	var jobs []interface{}
-	for _, v := range jobsOpt {
-		switch v["mode"] {
+func (x *API) SetSchedule(key string, opts []model.Job) (err error) {
+	jobs := make([]*app.Job, len(opts))
+	for k, v := range opts {
+		switch v.Mode {
 		case "HTTP":
-			jobs = append(jobs, common.HttpCallbackJob(
-				v["spec"].(string),
-				v["option"].(map[string]interface{}),
-			))
+			jobs[k] = app.HttpJob(
+				v.Spec,
+				v.Option,
+			)
 			break
 		}
 		if err = x.Schedule.Set(key, jobs...); err != nil {
@@ -54,39 +56,38 @@ func (x *API) Put(ctx context.Context, req *Schedule) (_ *empty.Empty, err error
 		func(sessCtx mongo.SessionContext) (_ interface{}, err error) {
 			wcMajority := writeconcern.New(writeconcern.WMajority(), writeconcern.WTimeout(time.Second))
 			wcMajorityCollectionOpts := options.Collection().SetWriteConcern(wcMajority)
-			var exists map[string]interface{}
-			if err = x.Db.Collection(x.name()).FindOne(sessCtx, bson.M{
+			var count int64
+			if count, err = x.Db.Collection(x.name()).CountDocuments(sessCtx, bson.M{
 				"key": req.Key,
-			}).Decode(&exists); err != nil {
+			}); err != nil {
 				return
 			}
-			data := map[string]interface{}{"key": req.Key}
-			jobsOpt := make([]map[string]interface{}, len(req.Jobs))
-			for i, v := range req.Jobs {
-				var option map[string]interface{}
+			data := model.Schedule{Key: req.Key}
+			data.Jobs = make([]model.Job, len(req.Jobs))
+			for k, v := range req.Jobs {
+				var option bson.M
 				if err = msgpack.Unmarshal(v.Option, &option); err != nil {
 					return
 				}
-				jobsOpt[i] = map[string]interface{}{
-					"spec":   v.Spec,
-					"mode":   v.Mode,
-					"option": option,
+				data.Jobs[k] = model.Job{
+					Spec:   v.Spec,
+					Mode:   v.Mode,
+					Option: option,
 				}
 			}
-			data["jobs"] = jobsOpt
-			if len(exists) != 0 {
+			if count != 0 {
 				if _, err = x.Db.Collection(x.name(), wcMajorityCollectionOpts).
-					ReplaceOne(sessCtx, bson.M{"_id": exists["_id"]}, data); err != nil {
+					ReplaceOne(sessCtx, bson.M{"key": req.Key}, data); err != nil {
 					return
 				}
+				x.Schedule.Remove(req.Key)
 			} else {
 				if _, err = x.Db.Collection(x.name(), wcMajorityCollectionOpts).
-					InsertOne(sessCtx, data); err != nil {
+					InsertOne(sessCtx, &data); err != nil {
 					return
 				}
 			}
-			x.Schedule.Remove(req.Key)
-			if err = x.SetSchedule(req.Key, jobsOpt); err != nil {
+			if err = x.SetSchedule(req.Key, data.Jobs); err != nil {
 				return
 			}
 			return
@@ -94,7 +95,7 @@ func (x *API) Put(ctx context.Context, req *Schedule) (_ *empty.Empty, err error
 	); err != nil {
 		return
 	}
-	return
+	return &empty.Empty{}, nil
 }
 
 func (x *API) Get(ctx context.Context, req *GetRequest) (rep *GetReply, err error) {
@@ -104,31 +105,34 @@ func (x *API) Get(ctx context.Context, req *GetRequest) (rep *GetReply, err erro
 	}); err != nil {
 		return
 	}
-	var schedules []map[string]interface{}
+	var schedules []model.Schedule
 	if err = cursor.All(ctx, &schedules); err != nil {
 		return
 	}
 	rep = new(GetReply)
-	data := make(map[string]*Schedule, len(schedules))
+	rep.Data = make(map[string]*Schedule, len(schedules))
 	for _, v := range schedules {
-		key := v["key"].(string)
-		jobs := make([]*Job, 0)
+		key := v.Key
 		state := x.Schedule.State(key)
-		for ii, vv := range v["jobs"].([]map[string]interface{}) {
-			jobs = append(jobs, &Job{
-				Spec:     vv["spec"].(string),
-				Mode:     vv["mode"].(string),
-				Option:   vv["option"].([]byte),
-				NextDate: common.PointInt64(state[ii].Next.Unix()),
-				LastDate: common.PointInt64(state[ii].Prev.Unix()),
-			})
+		jobs := make([]*Job, len(v.Jobs))
+		for kk, vv := range v.Jobs {
+			var option []byte
+			if option, err = msgpack.Marshal(vv.Option); err != nil {
+				return
+			}
+			jobs[kk] = &Job{
+				Spec:     vv.Spec,
+				Mode:     vv.Mode,
+				Option:   option,
+				NextDate: model.PointInt64(state[kk].Next.Unix()),
+				LastDate: model.PointInt64(state[kk].Prev.Unix()),
+			}
 		}
-		data[key] = &Schedule{
+		rep.Data[key] = &Schedule{
 			Key:  key,
 			Jobs: jobs,
 		}
 	}
-	rep.Data = data
 	return
 }
 
@@ -139,5 +143,5 @@ func (x *API) Delete(ctx context.Context, req *DeleteRequest) (_ *empty.Empty, e
 		return
 	}
 	x.Schedule.Remove(req.Key)
-	return
+	return &empty.Empty{}, nil
 }

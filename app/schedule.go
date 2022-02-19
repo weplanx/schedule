@@ -1,4 +1,4 @@
-package common
+package app
 
 import (
 	"github.com/robfig/cron/v3"
@@ -14,11 +14,10 @@ func NewSchedule() *Schedule {
 	}
 }
 
-func (x *Schedule) Set(k string, jobs ...interface{}) (err error) {
+func (x *Schedule) Set(k string, jobs ...*Job) (err error) {
 	x.values[k] = cron.New(cron.WithSeconds())
 	for _, v := range jobs {
-		opt := v.(*Job)
-		if _, err = x.values[k].AddFunc(opt.spec, opt.cmd); err != nil {
+		if _, err = x.values[k].AddFunc(v.spec, v.cmd); err != nil {
 			return
 		}
 	}
