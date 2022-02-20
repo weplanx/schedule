@@ -85,9 +85,7 @@ func New(i *common.Inject) (s *grpc.Server, err error) {
 		}
 	}
 
-	i.Log.Info("任务已启动",
-		zap.Any("state", schedules),
-	)
+	i.Log.Info("任务已启动")
 
 	RegisterAPIServer(s, api)
 	return

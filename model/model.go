@@ -12,6 +12,7 @@ func PointInt64(v int64) *int64 {
 type Schedule struct {
 	ID   primitive.ObjectID `bson:"_id,omitempty"`
 	Key  string             `bson:"key"`
+	Node string             `bson:"node"`
 	Jobs []Job              `bson:"jobs"`
 }
 

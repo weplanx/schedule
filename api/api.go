@@ -62,7 +62,7 @@ func (x *API) Put(ctx context.Context, req *Schedule) (_ *empty.Empty, err error
 			}); err != nil {
 				return
 			}
-			data := model.Schedule{Key: req.Key}
+			data := model.Schedule{Key: req.Key, Node: x.Values.Node}
 			data.Jobs = make([]model.Job, len(req.Jobs))
 			for k, v := range req.Jobs {
 				var option bson.M
