@@ -1,7 +1,6 @@
 package model
 
 import (
-	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -17,9 +16,9 @@ type Schedule struct {
 }
 
 type Job struct {
-	Spec   string `bson:"spec"`
-	Mode   string `bson:"mode"`
-	Option bson.M `bson:"option"`
+	Spec   string                 `bson:"spec"`
+	Mode   string                 `bson:"mode"`
+	Option map[string]interface{} `bson:"option"`
 }
 
 type HttpJob struct {

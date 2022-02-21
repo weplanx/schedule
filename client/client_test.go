@@ -45,7 +45,25 @@ func TestMain(m *testing.M) {
 
 func TestSchedule_Put(t *testing.T) {
 	httpJob, err := HttpJob("@every 1s", model.HttpJob{
-		Url: "https://api.kainonly.com",
+		Url: "http://mac:8080/ping",
+	})
+	if err != nil {
+		t.Error(err)
+	}
+	if err = x.Put(context.TODO(), "alpha", httpJob); err != nil {
+		t.Error(err)
+	}
+}
+
+func TestSchedule_PutAgain(t *testing.T) {
+	httpJob, err := HttpJob("@every 1s", model.HttpJob{
+		Url: "http://mac:8080/ping",
+		Headers: map[string]string{
+			"x-token": "zxc",
+		},
+		Body: map[string]interface{}{
+			"name": "kain",
+		},
 	})
 	if err != nil {
 		t.Error(err)

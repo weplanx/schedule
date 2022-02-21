@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"github.com/golang/protobuf/ptypes/empty"
+	"github.com/mitchellh/mapstructure"
 	"github.com/vmihailenco/msgpack/v5"
 	"github.com/weplanx/schedule/app"
 	"github.com/weplanx/schedule/common"
@@ -31,10 +32,11 @@ func (x *API) SetSchedule(key string, opts []model.Job) (err error) {
 	for k, v := range opts {
 		switch v.Mode {
 		case "HTTP":
-			jobs[k] = app.HttpJob(
-				v.Spec,
-				v.Option,
-			)
+			var option model.HttpJob
+			if err = mapstructure.Decode(v.Option, &option); err != nil {
+				return
+			}
+			jobs[k] = app.HttpJob(v.Spec, option, x.Log)
 			break
 		}
 		if err = x.Schedule.Set(key, jobs...); err != nil {
@@ -65,7 +67,7 @@ func (x *API) Put(ctx context.Context, req *Schedule) (_ *empty.Empty, err error
 			data := model.Schedule{Key: req.Key, Node: x.Values.Node}
 			data.Jobs = make([]model.Job, len(req.Jobs))
 			for k, v := range req.Jobs {
-				var option bson.M
+				var option map[string]interface{}
 				if err = msgpack.Unmarshal(v.Option, &option); err != nil {
 					return
 				}
