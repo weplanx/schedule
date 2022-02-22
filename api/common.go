@@ -19,6 +19,15 @@ var Provides = wire.NewSet(New)
 
 func New(i *common.Inject) (s *grpc.Server, err error) {
 	ctx := context.Background()
+
+	if err = i.Transfer.CreateLogger(ctx,
+		"schedule",
+		"schedule",
+		"定时器",
+	); err != nil {
+		return
+	}
+
 	coll := i.Values.Database.Collection
 
 	// 初始化存储索引
@@ -80,7 +89,7 @@ func New(i *common.Inject) (s *grpc.Server, err error) {
 		return
 	}
 	for _, v := range schedules {
-		if err = api.SetSchedule(v.Key, v.Jobs); err != nil {
+		if err = api.SetSchedule(ctx, v.Key, v.Jobs); err != nil {
 			return
 		}
 	}

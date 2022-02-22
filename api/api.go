@@ -5,7 +5,6 @@ import (
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/mitchellh/mapstructure"
 	"github.com/vmihailenco/msgpack/v5"
-	"github.com/weplanx/schedule/app"
 	"github.com/weplanx/schedule/common"
 	"github.com/weplanx/schedule/model"
 	"go.mongodb.org/mongo-driver/bson"
@@ -27,16 +26,17 @@ func (x *API) name() string {
 	return x.Values.Database.Collection
 }
 
-func (x *API) SetSchedule(key string, opts []model.Job) (err error) {
-	jobs := make([]*app.Job, len(opts))
+func (x *API) SetSchedule(ctx context.Context, key string, opts []model.Job) (err error) {
+	jobs := make([]*common.Job, len(opts))
 	for k, v := range opts {
+		jobs[k] = common.NewJob(x.Inject, v.Spec)
 		switch v.Mode {
 		case "HTTP":
 			var option model.HttpJob
 			if err = mapstructure.Decode(v.Option, &option); err != nil {
 				return
 			}
-			jobs[k] = app.HttpJob(v.Spec, option, x.Log)
+			jobs[k] = jobs[k].HttpWorker(ctx, option)
 			break
 		}
 		if err = x.Schedule.Set(key, jobs...); err != nil {
@@ -89,7 +89,7 @@ func (x *API) Put(ctx context.Context, req *Schedule) (_ *empty.Empty, err error
 					return
 				}
 			}
-			if err = x.SetSchedule(req.Key, data.Jobs); err != nil {
+			if err = x.SetSchedule(ctx, req.Key, data.Jobs); err != nil {
 				return
 			}
 			return

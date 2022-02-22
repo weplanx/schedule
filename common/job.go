@@ -1,46 +1,58 @@
-package app
+package common
 
 import (
+	"context"
 	"github.com/go-resty/resty/v2"
 	"github.com/weplanx/schedule/model"
 	"go.uber.org/zap"
 )
 
 type Job struct {
+	*Inject
+
 	spec string
 	cmd  func()
 }
 
 // NewJob 创建工作
-func NewJob(spec string, cmd func()) *Job {
+func NewJob(i *Inject, spec string) *Job {
 	return &Job{
-		spec: spec,
-		cmd:  cmd,
+		Inject: i,
+		spec:   spec,
 	}
 }
 
-// HttpJob Http回调工作
-func HttpJob(spec string, option model.HttpJob, log *zap.Logger) *Job {
-	return NewJob(spec, func() {
+// HttpWorker Http 回调工作
+func (x *Job) HttpWorker(ctx context.Context, option model.HttpJob) *Job {
+	x.cmd = func() {
 		client := resty.New()
 		resp, err := client.R().
 			SetHeaders(option.Headers).
 			SetBody(option.Body).
 			Post(option.Url)
 		if err != nil {
-			log.Error("发起失败",
+			x.Log.Error("发起失败",
 				zap.String("url", option.Url),
-				zap.Int("status", resp.StatusCode()),
 				zap.Error(err),
 				zap.String("time", resp.Time().String()),
 			)
 			return
 		}
-		log.Debug("发起成功",
+		x.Log.Debug("发起成功",
 			zap.String("url", option.Url),
 			zap.Int("status", resp.StatusCode()),
 			zap.ByteString("body", resp.Body()),
 			zap.String("time", resp.Time().String()),
 		)
-	})
+		if err = x.Transfer.Publish(ctx, x.Values.Transfer.Topic, map[string]interface{}{
+			"node":   x.Values.Node,
+			"url":    option.Url,
+			"status": resp.StatusCode(),
+			"body":   resp.Body(),
+			"time":   resp.Time(),
+		}); err != nil {
+			return
+		}
+	}
+	return x
 }

@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"github.com/google/wire"
-	"github.com/weplanx/schedule/app"
 	"github.com/weplanx/schedule/common"
 	"github.com/weplanx/transfer/client"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -62,8 +61,8 @@ func UseDatabase(client *mongo.Client, values *common.Values) *mongo.Database {
 	return client.Database(values.Database.Name)
 }
 
-func UseSchedule() *app.Schedule {
-	return app.NewSchedule()
+func UseSchedule() *common.Schedule {
+	return common.NewSchedule()
 }
 
 func UseTransfer(values *common.Values) (*client.Transfer, error) {

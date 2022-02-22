@@ -130,6 +130,10 @@ github.com/vmihailenco/tagparser/v2 v2.0.0 h1:y09buUbR+b5aycVFQs/g70pqKVZNBmxwAh
 github.com/vmihailenco/tagparser/v2 v2.0.0/go.mod h1:Wri+At7QHww0WTrCBeu4J6bNtoV6mEfg5OIWRZA9qds=
 github.com/weplanx/transfer v1.0.5 h1:23OWTXYl28v0eQwiKyrekksGRb5ZS3IGj2+HRUcCCHc=
 github.com/weplanx/transfer v1.0.5/go.mod h1:6u0Zm2MdAWvOZNMlw+U9D+HIm8c0pmyu4am75prNCMY=
+github.com/weplanx/transfer v1.0.7 h1:CuU1O9ZjgiSEEWG6dKkCfBs+pLh3RhHTGkqVTfzlelI=
+github.com/weplanx/transfer v1.0.7/go.mod h1:6u0Zm2MdAWvOZNMlw+U9D+HIm8c0pmyu4am75prNCMY=
+github.com/weplanx/transfer v1.0.8 h1:Fxngsz3YbaypMrc+qIs5eujZzNUF4KVFl9p9isc/+78=
+github.com/weplanx/transfer v1.0.8/go.mod h1:6u0Zm2MdAWvOZNMlw+U9D+HIm8c0pmyu4am75prNCMY=
 github.com/xdg-go/pbkdf2 v1.0.0 h1:Su7DPu48wXMwC3bs7MCNG+z4FhcyEuz5dlvchbq0B0c=
 github.com/xdg-go/pbkdf2 v1.0.0/go.mod h1:jrpuAogTd400dnrH08LKmI/xc1MbPOebTwRqcT5RDeI=
 github.com/xdg-go/scram v1.0.2 h1:akYIkZ28e6A96dkWNJQu3nmCzH3YfwMPQExUYDaRv7w=

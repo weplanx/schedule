@@ -1,4 +1,4 @@
-package app
+package common
 
 import (
 	"github.com/robfig/cron/v3"

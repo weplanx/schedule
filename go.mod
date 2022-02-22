@@ -14,7 +14,7 @@ require (
 	github.com/mitchellh/mapstructure v1.4.3 // indirect
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/vmihailenco/msgpack/v5 v5.3.5
-	github.com/weplanx/transfer v1.0.5 // indirect
+	github.com/weplanx/transfer v1.0.8 // indirect
 	go.mongodb.org/mongo-driver v1.8.3
 	go.uber.org/zap v1.21.0
 	golang.org/x/crypto v0.0.0-20220112180741-5e0467b6c7ce // indirect

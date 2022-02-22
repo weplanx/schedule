@@ -1,7 +1,6 @@
 package common
 
 import (
-	"github.com/weplanx/schedule/app"
 	"github.com/weplanx/transfer/client"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.uber.org/zap"
@@ -12,7 +11,7 @@ type Inject struct {
 	Log      *zap.Logger
 	Mongo    *mongo.Client
 	Db       *mongo.Database
-	Schedule *app.Schedule
+	Schedule *Schedule
 	Transfer *client.Transfer
 }
 
@@ -38,4 +37,5 @@ type Database struct {
 type Transfer struct {
 	Address string `yaml:"address"`
 	TLS     TLS    `yaml:"tls"`
+	Topic   string `yaml:"topic"`
 }
