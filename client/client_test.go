@@ -44,7 +44,7 @@ func TestMain(m *testing.M) {
 }
 
 func TestSchedule_Put(t *testing.T) {
-	httpJob, err := HttpJob("@every 1s", model.HttpJob{
+	httpJob, err := HttpWorker("@every 1s", model.HttpJob{
 		Url: "http://mac:8080/ping",
 	})
 	if err != nil {
@@ -56,7 +56,7 @@ func TestSchedule_Put(t *testing.T) {
 }
 
 func TestSchedule_PutAgain(t *testing.T) {
-	httpJob, err := HttpJob("@every 1s", model.HttpJob{
+	httpJob, err := HttpWorker("@every 1s", model.HttpJob{
 		Url: "http://mac:8080/ping",
 		Headers: map[string]string{
 			"x-token": "zxc",

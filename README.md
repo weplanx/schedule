@@ -9,6 +9,52 @@
 
 > 项目将以新的方式重新开发配套 weplanx ，新版本将以 `v*.*.*` 形式发布
 
+## 客户端
+
+在 `go.mod` 项目中
+
+```shell
+go get github.com/weplanx/schedule
+```
+
+简单使用
+
+```go
+package main
+
+import (
+	"context"
+	"fmt"
+	"github.com/weplanx/schedule/client"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
+)
+
+func main() {
+	var opts []grpc.DialOption
+	opts = append(opts, grpc.WithTransportCredentials(insecure.NewCredentials()))
+
+	// 或者使用 TLS
+	// certFile := "..."
+	// creds, err := credentials.NewClientTLSFromFile(certFile, "")
+	// if err != nil {
+	// 	panic(err)
+	// }
+	// opts = append(opts, grpc.WithTransportCredentials(creds))
+
+	schedule, err := client.New("127.0.0.1:6000", opts...)
+	if err != nil {
+		panic(err)
+	}
+	ctx := context.Background()
+	result, err := schedule.Get(ctx, []string{})
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(result)
+}
+```
+
 ## 部署服务
 
 镜像源主要有：

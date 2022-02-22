@@ -101,10 +101,12 @@ func (x *API) Put(ctx context.Context, req *Schedule) (_ *empty.Empty, err error
 }
 
 func (x *API) Get(ctx context.Context, req *GetRequest) (rep *GetReply, err error) {
+	filter := bson.M{}
+	if len(req.Keys) != 0 {
+		filter["key"] = bson.M{"$in": req.Keys}
+	}
 	var cursor *mongo.Cursor
-	if cursor, err = x.Db.Collection(x.name()).Find(ctx, bson.M{
-		"key": bson.M{"$in": req.Keys},
-	}); err != nil {
+	if cursor, err = x.Db.Collection(x.name()).Find(ctx, filter); err != nil {
 		return
 	}
 	var schedules []model.Schedule

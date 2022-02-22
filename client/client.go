@@ -26,7 +26,10 @@ func (x *Schedule) Close() error {
 	return x.conn.Close()
 }
 
-func HttpJob(spec string, option model.HttpJob) (job *api.Job, err error) {
+// HttpWorker HTTP回调
+// @spec Crontab 规则
+// @option HTTP 配置
+func HttpWorker(spec string, option model.HttpJob) (job *api.Job, err error) {
 	job = &api.Job{
 		Spec: spec,
 		Mode: "HTTP",
@@ -37,6 +40,9 @@ func HttpJob(spec string, option model.HttpJob) (job *api.Job, err error) {
 	return
 }
 
+// Put 更新任务
+// @key 唯一标识
+// @jobs 工作流
 func (x *Schedule) Put(ctx context.Context, key string, jobs ...*api.Job) (err error) {
 	if _, err = x.client.Put(ctx, &api.Schedule{
 		Key:  key,
@@ -47,6 +53,8 @@ func (x *Schedule) Put(ctx context.Context, key string, jobs ...*api.Job) (err e
 	return
 }
 
+// Get 获取任务
+// @keys 唯一标识数组
 func (x *Schedule) Get(ctx context.Context, keys []string) (data map[string]*api.Schedule, err error) {
 	var rep *api.GetReply
 	if rep, err = x.client.Get(ctx, &api.GetRequest{Keys: keys}); err != nil {
@@ -56,6 +64,8 @@ func (x *Schedule) Get(ctx context.Context, keys []string) (data map[string]*api
 	return
 }
 
+// Delete 删除任务
+// @key 唯一标识
 func (x *Schedule) Delete(ctx context.Context, key string) (err error) {
 	if _, err = x.client.Delete(ctx, &api.DeleteRequest{Key: key}); err != nil {
 		return
