@@ -45,6 +45,7 @@ func (x *Job) HttpWorker(ctx context.Context, option model.HttpJob) *Job {
 			zap.String("time", resp.Time().String()),
 		)
 		if err = x.Transfer.Publish(ctx, x.Values.Transfer.Topic, map[string]interface{}{
+			"key":    "schedule",
 			"node":   x.Values.Node,
 			"url":    option.Url,
 			"status": resp.StatusCode(),
