@@ -9,5 +9,6 @@ database:
   collection: <默认集合>
 transfer:
   address: "transfer:6000"
+  topic: schedule
   tls:
     cert:
