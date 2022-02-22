@@ -5,7 +5,7 @@
 [![Release](https://img.shields.io/github/v/release/weplanx/schedule.svg?style=flat-square)](https://github.com/weplanx/schedule)
 [![GitHub license](https://img.shields.io/github/license/weplanx/schedule?style=flat-square)](https://raw.githubusercontent.com/weplanx/schedule/main/LICENSE)
 
-定时触发器
+定时调度器，协助应用定时触发需要的任务
 
 > 项目将以新的方式重新开发配套 weplanx ，新版本将以 `v*.*.*` 形式发布
 
