@@ -6,9 +6,13 @@ import (
 	"github.com/google/wire"
 	"github.com/weplanx/schedule/app"
 	"github.com/weplanx/schedule/common"
+	"github.com/weplanx/transfer/client"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.uber.org/zap"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
+	"google.golang.org/grpc/credentials/insecure"
 	"gopkg.in/yaml.v3"
 	"io/ioutil"
 	"os"
@@ -19,6 +23,7 @@ var Provides = wire.NewSet(
 	UseMongoDB,
 	UseDatabase,
 	UseSchedule,
+	UseTransfer,
 )
 
 // SetValues 初始化配置
@@ -59,4 +64,19 @@ func UseDatabase(client *mongo.Client, values *common.Values) *mongo.Database {
 
 func UseSchedule() *app.Schedule {
 	return app.NewSchedule()
+}
+
+func UseTransfer(values *common.Values) (*client.Transfer, error) {
+	option := values.Transfer
+	var opts []grpc.DialOption
+	if option.TLS.Cert != "" {
+		creds, err := credentials.NewClientTLSFromFile(option.TLS.Cert, "")
+		if err != nil {
+			panic(err)
+		}
+		opts = append(opts, grpc.WithTransportCredentials(creds))
+	} else {
+		opts = append(opts, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	}
+	return client.New(option.Address, opts...)
 }
