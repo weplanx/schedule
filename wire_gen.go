@@ -7,40 +7,41 @@
 package main
 
 import (
-	"github.com/weplanx/schedule/api"
+	"github.com/weplanx/schedule/app"
 	"github.com/weplanx/schedule/bootstrap"
 	"github.com/weplanx/schedule/common"
-	"google.golang.org/grpc"
 )
 
 // Injectors from wire.go:
 
-func App(value *common.Values) (*grpc.Server, error) {
-	logger, err := bootstrap.UseZap()
+func App(value *common.Values) (*app.App, error) {
+	logger, err := bootstrap.UseZap(value)
 	if err != nil {
 		return nil, err
 	}
-	client, err := bootstrap.UseMongoDB(value)
-	if err != nil {
-		return nil, err
-	}
-	database := bootstrap.UseDatabase(client, value)
 	schedule := bootstrap.UseSchedule()
-	transfer, err := bootstrap.UseTransfer(value)
+	conn, err := bootstrap.UseNats(value)
+	if err != nil {
+		return nil, err
+	}
+	jetStreamContext, err := bootstrap.UseJetStream(conn)
+	if err != nil {
+		return nil, err
+	}
+	objectStore, err := bootstrap.UseStore(value, jetStreamContext)
 	if err != nil {
 		return nil, err
 	}
 	inject := &common.Inject{
 		Values:   value,
 		Log:      logger,
-		Mongo:    client,
-		Db:       database,
 		Schedule: schedule,
-		Transfer: transfer,
+		Js:       jetStreamContext,
+		Store:    objectStore,
 	}
-	server, err := api.New(inject)
+	appApp, err := app.New(inject)
 	if err != nil {
 		return nil, err
 	}
-	return server, nil
+	return appApp, nil
 }

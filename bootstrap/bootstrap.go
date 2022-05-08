@@ -1,81 +1,76 @@
 package bootstrap
 
 import (
-	"context"
-	"errors"
+	"fmt"
 	"github.com/google/wire"
+	"github.com/nats-io/nats.go"
+	"github.com/nats-io/nkeys"
 	"github.com/weplanx/schedule/common"
-	"github.com/weplanx/transfer/client"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
+	"github.com/weplanx/schedule/utiliy"
 	"go.uber.org/zap"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials"
-	"google.golang.org/grpc/credentials/insecure"
-	"gopkg.in/yaml.v3"
-	"io/ioutil"
-	"os"
+	"strings"
+	"time"
 )
 
 var Provides = wire.NewSet(
 	UseZap,
-	UseMongoDB,
-	UseDatabase,
+	UseNats,
+	UseJetStream,
+	UseStore,
 	UseSchedule,
-	UseTransfer,
 )
 
-// SetValues 初始化配置
-func SetValues() (values *common.Values, err error) {
-	if _, err = os.Stat("./config/config.yml"); os.IsNotExist(err) {
-		err = errors.New("the path [./config.yml] does not have a configuration file")
-		return
-	}
-	var b []byte
-	b, err = ioutil.ReadFile("./config/config.yml")
-	if err != nil {
-		return
-	}
-	err = yaml.Unmarshal(b, &values)
-	if err != nil {
-		return
-	}
-	return
-}
-
-func UseZap() (logger *zap.Logger, err error) {
-	if logger, err = zap.NewProduction(); err != nil {
-		return
-	}
-	return
-}
-
-func UseMongoDB(values *common.Values) (*mongo.Client, error) {
-	return mongo.Connect(
-		context.TODO(),
-		options.Client().ApplyURI(values.Database.Uri),
-	)
-}
-
-func UseDatabase(client *mongo.Client, values *common.Values) *mongo.Database {
-	return client.Database(values.Database.Name)
-}
-
-func UseSchedule() *common.Schedule {
-	return common.NewSchedule()
-}
-
-func UseTransfer(values *common.Values) (*client.Transfer, error) {
-	option := values.Transfer
-	var opts []grpc.DialOption
-	if option.TLS.Cert != "" {
-		creds, err := credentials.NewClientTLSFromFile(option.TLS.Cert, "")
-		if err != nil {
-			panic(err)
+func UseZap(values *common.Values) (log *zap.Logger, err error) {
+	if values.Debug {
+		if log, err = zap.NewDevelopment(); err != nil {
+			return
 		}
-		opts = append(opts, grpc.WithTransportCredentials(creds))
 	} else {
-		opts = append(opts, grpc.WithTransportCredentials(insecure.NewCredentials()))
+		if log, err = zap.NewProduction(); err != nil {
+			return
+		}
 	}
-	return client.New(option.Address, opts...)
+	return
+}
+
+func UseNats(values *common.Values) (nc *nats.Conn, err error) {
+	var kp nkeys.KeyPair
+	if kp, err = nkeys.FromSeed([]byte(values.Nats.Nkey)); err != nil {
+		return
+	}
+	defer kp.Wipe()
+	var pub string
+	if pub, err = kp.PublicKey(); err != nil {
+		return
+	}
+	if !nkeys.IsValidPublicUserKey(pub) {
+		return nil, fmt.Errorf("nkey 验证失败")
+	}
+	if nc, err = nats.Connect(
+		strings.Join(values.Nats.Hosts, ","),
+		nats.MaxReconnects(5),
+		nats.ReconnectWait(2*time.Second),
+		nats.ReconnectJitter(500*time.Millisecond, 2*time.Second),
+		nats.Nkey(pub, func(nonce []byte) ([]byte, error) {
+			sig, _ := kp.Sign(nonce)
+			return sig, nil
+		}),
+	); err != nil {
+		return
+	}
+	return
+}
+
+func UseJetStream(nc *nats.Conn) (nats.JetStreamContext, error) {
+	return nc.JetStream(nats.PublishAsyncMaxPending(256))
+}
+
+func UseStore(values *common.Values, js nats.JetStreamContext) (nats.ObjectStore, error) {
+	return js.CreateObjectStore(&nats.ObjectStoreConfig{
+		Bucket: fmt.Sprintf(`%s_schedules`, values.Namespace),
+	})
+}
+
+func UseSchedule() *utiliy.Schedule {
+	return utiliy.NewSchedule()
 }

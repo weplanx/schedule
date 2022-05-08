@@ -1,73 +1,73 @@
 package client
 
 import (
-	"context"
+	"fmt"
+	"github.com/nats-io/nats.go"
 	"github.com/vmihailenco/msgpack/v5"
-	"github.com/weplanx/schedule/api"
-	"github.com/weplanx/schedule/model"
-	"google.golang.org/grpc"
 )
 
 type Schedule struct {
-	client api.APIClient
-	conn   *grpc.ClientConn
+	Namespace string
+	Js        nats.JetStreamContext
+	Store     nats.ObjectStore
 }
 
-func New(addr string, opts ...grpc.DialOption) (x *Schedule, err error) {
-	x = new(Schedule)
-	if x.conn, err = grpc.Dial(addr, opts...); err != nil {
-		return
+func New(namespace string, js nats.JetStreamContext) (x *Schedule, err error) {
+	x = &Schedule{
+		Namespace: namespace,
+		Js:        js,
 	}
-	x.client = api.NewAPIClient(x.conn)
-	return
-}
-
-func (x *Schedule) Close() error {
-	return x.conn.Close()
-}
-
-// HttpWorker HTTP回调
-// @spec Crontab 规则
-// @option HTTP 配置
-func HttpWorker(spec string, option model.HttpJob) (job *api.Job, err error) {
-	job = &api.Job{
-		Spec: spec,
-		Mode: "HTTP",
-	}
-	if job.Option, err = msgpack.Marshal(option); err != nil {
-		return
-	}
-	return
-}
-
-// Put 更新任务
-// @key 唯一标识
-// @jobs 工作流
-func (x *Schedule) Put(ctx context.Context, key string, jobs ...*api.Job) (err error) {
-	if _, err = x.client.Put(ctx, &api.Schedule{
-		Key:  key,
-		Jobs: jobs,
+	if x.Store, err = js.CreateObjectStore(&nats.ObjectStoreConfig{
+		Bucket: fmt.Sprintf(`%s_schedule`, x.Namespace),
 	}); err != nil {
 		return
 	}
 	return
 }
 
-// Get 获取任务
-// @keys 唯一标识数组
-func (x *Schedule) Get(ctx context.Context, keys []string) (data map[string]*api.Schedule, err error) {
-	var rep *api.GetReply
-	if rep, err = x.client.Get(ctx, &api.GetRequest{Keys: keys}); err != nil {
+type Job struct {
+	Mode string
+	Rule string
+	Spec Spec
+}
+
+type Spec interface{}
+
+type HttpSpec struct {
+	Url     string                 `bson:"url"`
+	Headers map[string]string      `bson:"headers"`
+	Body    map[string]interface{} `bson:"body"`
+}
+
+// HttpJob HTTP回调
+func HttpJob(rule string, spec HttpSpec) Job {
+	return Job{
+		Mode: "HTTP",
+		Rule: rule,
+		Spec: spec,
+	}
+}
+
+// Get 获取调度信息
+func (x *Schedule) Get(key string) {
+
+}
+
+// Set 设置调度
+func (x *Schedule) Set(key string, jobs ...Job) (err error) {
+	var b []byte
+	if b, err = msgpack.Marshal(jobs); err != nil {
 		return
 	}
-	data = rep.GetData()
+	if _, err = x.Store.PutBytes(key, b); err != nil {
+		return
+	}
 	return
 }
 
-// Delete 删除任务
-// @key 唯一标识
-func (x *Schedule) Delete(ctx context.Context, key string) (err error) {
-	if _, err = x.client.Delete(ctx, &api.DeleteRequest{Key: key}); err != nil {
+// Remove 移除调度
+func (x *Schedule) Remove(key string) (err error) {
+	if err = x.Store.Delete(key); err != nil {
 		return
 	}
 	return

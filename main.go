@@ -1,16 +1,13 @@
 package main
 
 import (
-	"github.com/weplanx/schedule/bootstrap"
-	"net"
+	"github.com/weplanx/schedule/common"
+	"os"
+	"os/signal"
 )
 
 func main() {
-	v, err := bootstrap.SetValues()
-	if err != nil {
-		panic(err)
-	}
-	lis, err := net.Listen("tcp", v.Address)
+	v, err := common.SetValues()
 	if err != nil {
 		panic(err)
 	}
@@ -18,5 +15,11 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	app.Serve(lis)
+	if err = app.Run(); err != nil {
+		panic(err)
+	}
+
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt)
+	<-c
 }
