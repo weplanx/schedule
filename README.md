@@ -5,7 +5,7 @@
 [![Release](https://img.shields.io/github/v/release/weplanx/schedule.svg?style=flat-square)](https://github.com/weplanx/schedule)
 [![GitHub license](https://img.shields.io/github/license/weplanx/schedule?style=flat-square)](https://raw.githubusercontent.com/weplanx/schedule/main/LICENSE)
 
-分布定时调度器，定时向队列发布待触发的工作任务，配合相同命名空间的 [Worker](https://github.com/weplanx/worker) 节点执行任务
+分布定时调度服务，定时向队列发布待触发的工作任务，配合相同命名空间的 [Worker](https://github.com/weplanx/worker) 节点执行任务
 
 > 项目将以新的方式重新配套 weplanx 
 > ，新版本将以 `v*.*.*` 形式发布（预发布用于构建测试）
