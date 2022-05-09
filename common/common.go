@@ -29,6 +29,7 @@ func SetValues() (values *Values, err error) {
 type Inject struct {
 	Values *Values
 	Log    *zap.Logger
+	Nats   *nats.Conn
 	Js     nats.JetStreamContext
 	Store  nats.ObjectStore
 }

@@ -34,6 +34,7 @@ func App(value *common.Values) (*app.App, error) {
 	inject := &common.Inject{
 		Values: value,
 		Log:    logger,
+		Nats:   conn,
 		Js:     jetStreamContext,
 		Store:  objectStore,
 	}

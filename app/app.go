@@ -2,6 +2,7 @@ package app
 
 import (
 	"errors"
+	"fmt"
 	"github.com/nats-io/nats.go"
 	"github.com/vmihailenco/msgpack/v5"
 	"github.com/weplanx/schedule/utiliy"
@@ -11,7 +12,20 @@ import (
 
 // Run 启动服务
 func (x *App) Run() (err error) {
-	// 初始化定时发布
+	// 监听同步
+	subject := fmt.Sprintf(`%s.sync`, x.Values.Namespace)
+	if _, err = x.Nats.Subscribe(subject, func(msg *nats.Msg) {
+		var sync Sync
+		if err := msgpack.Unmarshal(msg.Data, &sync); err != nil {
+			return
+		}
+		time.Sleep(sync.Time.Sub(time.Now()))
+		x.Schedules.Start(sync.Key)
+	}); err != nil {
+		return
+	}
+
+	// 同步定时发布
 	var objects []*nats.ObjectInfo
 	if objects, err = x.Store.List(); errors.Is(err, nats.ErrNoObjectsFound) {
 		if errors.Is(err, nats.ErrNoObjectsFound) {
@@ -42,7 +56,9 @@ func (x *App) Run() (err error) {
 			)
 			return
 		}
-		x.Schedules.Start(key)
+		if err = x.PubSync(key); err != nil {
+			return
+		}
 	}
 
 	// 订阅事件状态
@@ -77,10 +93,32 @@ func (x *App) Run() (err error) {
 				)
 				return
 			}
-			x.Schedules.Start(key)
+			if err = x.PubSync(key); err != nil {
+				return
+			}
 		} else {
 			x.Schedules.Remove(key)
 		}
+	}
+	return
+}
+
+type Sync struct {
+	Key  string
+	Time time.Time
+}
+
+func (x *App) PubSync(key string) (err error) {
+	subject := fmt.Sprintf(`%s.sync`, x.Values.Namespace)
+	var b []byte
+	if b, err = msgpack.Marshal(Sync{
+		Key:  key,
+		Time: time.Now().Add(time.Second * 5),
+	}); err != nil {
+		return
+	}
+	if err = x.Nats.Publish(subject, b); err != nil {
+		return
 	}
 	return
 }
