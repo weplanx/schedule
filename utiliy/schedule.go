@@ -30,17 +30,21 @@ func (x *Schedule) Set(key string, jobs ...Job) (err error) {
 	return
 }
 
-func (x *Schedule) Start(k string) {
-	x.values[k].Start()
+func (x *Schedule) Start(key string) {
+	x.values[key].Start()
 }
 
-func (x *Schedule) State(k string) []cron.Entry {
-	return x.values[k].Entries()
+func (x *Schedule) Stop(key string) {
+	x.values[key].Stop()
 }
 
-func (x *Schedule) Remove(k string) {
-	if c, exists := x.values[k]; exists {
+func (x *Schedule) State(key string) []cron.Entry {
+	return x.values[key].Entries()
+}
+
+func (x *Schedule) Remove(key string) {
+	if c, exists := x.values[key]; exists {
 		c.Stop()
-		delete(x.values, k)
+		delete(x.values, key)
 	}
 }

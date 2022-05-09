@@ -19,6 +19,7 @@ func (x *App) Run() (err error) {
 		if err := msgpack.Unmarshal(msg.Data, &sync); err != nil {
 			return
 		}
+		x.Schedules.Stop(sync.Key)
 		time.Sleep(sync.Time.Sub(time.Now()))
 		x.Schedules.Start(sync.Key)
 	}); err != nil {

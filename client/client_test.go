@@ -40,7 +40,7 @@ func TestSchedule_Set(t *testing.T) {
 }
 
 func TestSchedule_Update(t *testing.T) {
-	job := utiliy.HttpJob("@every 2s", utiliy.HttpSpec{
+	job := utiliy.HttpJob("@every 5s", utiliy.HttpSpec{
 		Url: "http://mac:8080/ping",
 		Headers: map[string]string{
 			"x-token": "zxc",
