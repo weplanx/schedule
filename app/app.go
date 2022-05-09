@@ -34,7 +34,6 @@ func (x *App) Run() (err error) {
 			)
 			return
 		}
-
 		if err = x.Schedules.Set(key, jobs...); err != nil {
 			x.Log.Error("定时发布设置失败",
 				zap.String("key", key),
@@ -43,6 +42,7 @@ func (x *App) Run() (err error) {
 			)
 			return
 		}
+		x.Schedules.Start(key)
 	}
 
 	// 订阅事件状态
@@ -77,6 +77,7 @@ func (x *App) Run() (err error) {
 				)
 				return
 			}
+			x.Schedules.Start(key)
 		} else {
 			x.Schedules.Remove(key)
 		}

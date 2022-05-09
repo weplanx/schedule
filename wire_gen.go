@@ -19,7 +19,6 @@ func App(value *common.Values) (*app.App, error) {
 	if err != nil {
 		return nil, err
 	}
-	schedule := bootstrap.UseSchedule()
 	conn, err := bootstrap.UseNats(value)
 	if err != nil {
 		return nil, err
@@ -33,11 +32,10 @@ func App(value *common.Values) (*app.App, error) {
 		return nil, err
 	}
 	inject := &common.Inject{
-		Values:   value,
-		Log:      logger,
-		Schedule: schedule,
-		Js:       jetStreamContext,
-		Store:    objectStore,
+		Values: value,
+		Log:    logger,
+		Js:     jetStreamContext,
+		Store:  objectStore,
 	}
 	appApp, err := app.New(inject)
 	if err != nil {

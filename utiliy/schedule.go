@@ -2,6 +2,7 @@ package utiliy
 
 import (
 	"github.com/robfig/cron/v3"
+	"log"
 )
 
 type Schedule struct {
@@ -15,9 +16,13 @@ func NewSchedule() *Schedule {
 }
 
 func (x *Schedule) Set(key string, jobs ...Job) (err error) {
+	if x.values[key] != nil {
+		x.Remove(key)
+	}
 	x.values[key] = cron.New(cron.WithSeconds())
 	for _, job := range jobs {
 		if _, err = x.values[key].AddFunc(job.Rule, func() {
+			log.Println(key, job.Rule, job.Mode, job.Spec)
 		}); err != nil {
 			return
 		}

@@ -3,7 +3,6 @@ package common
 import (
 	"errors"
 	"github.com/nats-io/nats.go"
-	"github.com/weplanx/schedule/utiliy"
 	"go.uber.org/zap"
 	"gopkg.in/yaml.v3"
 	"io/ioutil"
@@ -28,11 +27,10 @@ func SetValues() (values *Values, err error) {
 }
 
 type Inject struct {
-	Values   *Values
-	Log      *zap.Logger
-	Schedule *utiliy.Schedule
-	Js       nats.JetStreamContext
-	Store    nats.ObjectStore
+	Values *Values
+	Log    *zap.Logger
+	Js     nats.JetStreamContext
+	Store  nats.ObjectStore
 }
 
 type Values struct {
