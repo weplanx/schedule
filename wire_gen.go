@@ -38,9 +38,6 @@ func App(value *common.Values) (*app.App, error) {
 		Js:     jetStreamContext,
 		Store:  objectStore,
 	}
-	appApp, err := app.New(inject)
-	if err != nil {
-		return nil, err
-	}
+	appApp := app.New(inject)
 	return appApp, nil
 }

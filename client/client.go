@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/nats-io/nats.go"
 	"github.com/vmihailenco/msgpack/v5"
-	"github.com/weplanx/schedule/utiliy"
+	"github.com/weplanx/schedule/common"
 	"time"
 )
 
@@ -30,7 +30,7 @@ func New(namespace string, nc *nats.Conn, js nats.JetStreamContext) (x *Schedule
 }
 
 // Get 获取调度信息
-func (x *Schedule) Get(key string) (jobs []utiliy.Job, err error) {
+func (x *Schedule) Get(key string) (jobs []common.Job, err error) {
 	var b []byte
 	if b, err = x.Store.GetBytes(key); err != nil {
 		return
@@ -43,7 +43,7 @@ func (x *Schedule) Get(key string) (jobs []utiliy.Job, err error) {
 	if msg, err = x.Nats.Request(subject, []byte(key), time.Second*3); err != nil {
 		return
 	}
-	var values []utiliy.State
+	var values []common.State
 	if err = msgpack.Unmarshal(msg.Data, &values); err != nil {
 		return
 	}
@@ -54,7 +54,7 @@ func (x *Schedule) Get(key string) (jobs []utiliy.Job, err error) {
 }
 
 // Set 设置调度
-func (x *Schedule) Set(key string, jobs ...utiliy.Job) (err error) {
+func (x *Schedule) Set(key string, jobs ...common.Job) (err error) {
 	var b []byte
 	if b, err = msgpack.Marshal(jobs); err != nil {
 		return

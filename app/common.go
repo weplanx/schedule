@@ -3,9 +3,11 @@ package app
 import (
 	"fmt"
 	"github.com/google/wire"
+	"github.com/nats-io/nats.go"
+	"github.com/robfig/cron/v3"
 	"github.com/vmihailenco/msgpack/v5"
 	"github.com/weplanx/schedule/common"
-	"github.com/weplanx/schedule/utiliy"
+	"go.uber.org/zap"
 	"time"
 )
 
@@ -13,15 +15,71 @@ var Provides = wire.NewSet(New)
 
 type App struct {
 	*common.Inject
-	Schedules *utiliy.Schedule
+	values map[string]*cron.Cron
 }
 
-func New(i *common.Inject) (x *App, err error) {
-	x = &App{
-		Inject:    i,
-		Schedules: utiliy.NewSchedule(),
+func New(i *common.Inject) *App {
+	return &App{
+		Inject: i,
+		values: make(map[string]*cron.Cron),
+	}
+}
+
+func (x *App) Set(key string, jobs ...common.Job) (err error) {
+	if x.values[key] != nil {
+		x.Remove(key)
+	}
+	x.values[key] = cron.New(cron.WithSeconds())
+	for n, job := range jobs {
+		if _, err = x.values[key].AddFunc(job.Spec, func() {
+			subject := fmt.Sprintf(`%s.schedules`, x.Values.Namespace)
+			value := map[string]interface{}{
+				"key":    key,
+				"n":      n,
+				"mode":   job.Mode,
+				"option": job.Option,
+			}
+			b, _ := msgpack.Marshal(value)
+			msgId := fmt.Sprintf(`%s-%d`, key, time.Now().Unix())
+			if _, err := x.Js.Publish(subject, b, nats.MsgId(msgId)); err != nil {
+				x.Log.Error("发布失败",
+					zap.String("key", key),
+					zap.Int("n", n),
+					zap.Error(err),
+				)
+				return
+			}
+			x.Log.Info("任务发布成功",
+				zap.String("key", key),
+				zap.String("msgId", msgId),
+				zap.Int("n", n),
+				zap.String("mode", job.Mode),
+				zap.Any("option", job.Option),
+			)
+		}); err != nil {
+			return
+		}
 	}
 	return
+}
+
+func (x *App) Start(key string) {
+	x.values[key].Start()
+}
+
+func (x *App) Stop(key string) {
+	x.values[key].Stop()
+}
+
+func (x *App) State(key string) []cron.Entry {
+	return x.values[key].Entries()
+}
+
+func (x *App) Remove(key string) {
+	if c, exists := x.values[key]; exists {
+		c.Stop()
+		delete(x.values, key)
+	}
 }
 
 type Sync struct {

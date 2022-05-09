@@ -3,7 +3,6 @@ package client
 import (
 	"github.com/weplanx/schedule/bootstrap"
 	"github.com/weplanx/schedule/common"
-	"github.com/weplanx/schedule/utiliy"
 	"os"
 	"testing"
 )
@@ -31,7 +30,7 @@ func TestMain(m *testing.M) {
 }
 
 func TestSchedule_Set(t *testing.T) {
-	job := utiliy.HttpJob("@every 1s", utiliy.HttpSpec{
+	job := common.HttpJob("@every 1s", common.HttpOption{
 		Url: "http://mac:8080/ping",
 	})
 	if err := x.Set("ping", job); err != nil {
@@ -40,7 +39,7 @@ func TestSchedule_Set(t *testing.T) {
 }
 
 func TestSchedule_Update(t *testing.T) {
-	job := utiliy.HttpJob("@every 5s", utiliy.HttpSpec{
+	job := common.HttpJob("@every 5s", common.HttpOption{
 		Url: "http://mac:8080/ping",
 		Headers: map[string]string{
 			"x-token": "zxc",

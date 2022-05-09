@@ -1,11 +1,11 @@
-package utiliy
+package common
 
 import "time"
 
 type Job struct {
-	Mode string `msgpack:"mode"`
-	Rule string `msgpack:"rule"`
-	Spec Spec   `msgpack:"spec"`
+	Mode   string `msgpack:"mode"`
+	Spec   string `msgpack:"spec"`
+	Option Option `msgpack:"option"`
 
 	State `msgpack:"state"`
 }
@@ -15,19 +15,19 @@ type State struct {
 	Prev time.Time `msgpack:"prev"`
 }
 
-type Spec interface{}
+type Option interface{}
 
-type HttpSpec struct {
+type HttpOption struct {
 	Url     string                 `msgpack:"url"`
 	Headers map[string]string      `msgpack:"headers"`
 	Body    map[string]interface{} `msgpack:"body"`
 }
 
 // HttpJob HTTP回调
-func HttpJob(rule string, spec HttpSpec) Job {
+func HttpJob(spec string, option HttpOption) Job {
 	return Job{
-		Mode: "HTTP",
-		Rule: rule,
-		Spec: spec,
+		Mode:   "HTTP",
+		Spec:   spec,
+		Option: option,
 	}
 }

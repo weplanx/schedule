@@ -6,7 +6,6 @@ import (
 	"github.com/nats-io/nats.go"
 	"github.com/nats-io/nkeys"
 	"github.com/weplanx/schedule/common"
-	"github.com/weplanx/schedule/utiliy"
 	"go.uber.org/zap"
 	"strings"
 	"time"
@@ -17,7 +16,6 @@ var Provides = wire.NewSet(
 	UseNats,
 	UseJetStream,
 	UseStore,
-	UseSchedule,
 )
 
 func UseZap(values *common.Values) (log *zap.Logger, err error) {
@@ -69,8 +67,4 @@ func UseStore(values *common.Values, js nats.JetStreamContext) (nats.ObjectStore
 	return js.CreateObjectStore(&nats.ObjectStoreConfig{
 		Bucket: fmt.Sprintf(`%s_schedules`, values.Namespace),
 	})
-}
-
-func UseSchedule() *utiliy.Schedule {
-	return utiliy.NewSchedule()
 }
