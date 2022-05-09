@@ -12,21 +12,15 @@ import (
 
 // Run 启动服务
 func (x *App) Run() (err error) {
-	// 监听同步
-	subject := fmt.Sprintf(`%s.sync`, x.Values.Namespace)
-	if _, err = x.Nats.Subscribe(subject, func(msg *nats.Msg) {
-		var sync Sync
-		if err := msgpack.Unmarshal(msg.Data, &sync); err != nil {
-			return
-		}
-		x.Schedules.Stop(sync.Key)
-		time.Sleep(sync.Time.Sub(time.Now()))
-		x.Schedules.Start(sync.Key)
-	}); err != nil {
+	// 多节点工作同步
+	if err = x.Sync(); err != nil {
 		return
 	}
-
-	// 同步定时发布
+	// 状态反馈
+	if err = x.State(); err != nil {
+		return
+	}
+	// 拉取配置设置定时
 	var objects []*nats.ObjectInfo
 	if objects, err = x.Store.List(); errors.Is(err, nats.ErrNoObjectsFound) {
 		if errors.Is(err, nats.ErrNoObjectsFound) {
@@ -61,8 +55,7 @@ func (x *App) Run() (err error) {
 			return
 		}
 	}
-
-	// 订阅事件状态
+	// 订阅配置
 	var watch nats.ObjectWatcher
 	if watch, err = x.Store.Watch(); err != nil {
 		return
@@ -104,21 +97,37 @@ func (x *App) Run() (err error) {
 	return
 }
 
-type Sync struct {
-	Key  string
-	Time time.Time
-}
-
-func (x *App) PubSync(key string) (err error) {
+func (x *App) Sync() (err error) {
 	subject := fmt.Sprintf(`%s.sync`, x.Values.Namespace)
-	var b []byte
-	if b, err = msgpack.Marshal(Sync{
-		Key:  key,
-		Time: time.Now().Add(time.Second * 5),
+	if _, err = x.Nats.Subscribe(subject, func(msg *nats.Msg) {
+		var sync Sync
+		if err := msgpack.Unmarshal(msg.Data, &sync); err != nil {
+			return
+		}
+		x.Schedules.Stop(sync.Key)
+		time.Sleep(sync.Time.Sub(time.Now()))
+		x.Schedules.Start(sync.Key)
 	}); err != nil {
 		return
 	}
-	if err = x.Nats.Publish(subject, b); err != nil {
+	return
+}
+
+func (x *App) State() (err error) {
+	name := fmt.Sprintf(`%s:state`, x.Values.Namespace)
+	subject := fmt.Sprintf(`%s.state`, x.Values.Namespace)
+	if _, err = x.Nats.QueueSubscribe(subject, name, func(msg *nats.Msg) {
+		key := string(msg.Data)
+		var values []utiliy.State
+		for _, entry := range x.Schedules.State(key) {
+			values = append(values, utiliy.State{
+				Next: entry.Next,
+				Prev: entry.Prev,
+			})
+		}
+		b, _ := msgpack.Marshal(values)
+		msg.Respond(b)
+	}); err != nil {
 		return
 	}
 	return

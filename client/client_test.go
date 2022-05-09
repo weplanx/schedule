@@ -24,7 +24,7 @@ func TestMain(m *testing.M) {
 	if err != nil {
 		panic(err)
 	}
-	if x, err = New("alpha", js); err != nil {
+	if x, err = New("alpha", nc, js); err != nil {
 		panic(err)
 	}
 	os.Exit(m.Run())
@@ -55,11 +55,11 @@ func TestSchedule_Update(t *testing.T) {
 }
 
 func TestSchedule_Get(t *testing.T) {
-	//data, err := x.Get("ping")
-	//if err != nil {
-	//	t.Error(err)
-	//}
-	//t.Log(data)
+	data, err := x.Get("ping")
+	if err != nil {
+		t.Error(err)
+	}
+	t.Log(data)
 }
 
 func TestSchedule_Remove(t *testing.T) {

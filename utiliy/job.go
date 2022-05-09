@@ -1,9 +1,18 @@
 package utiliy
 
+import "time"
+
 type Job struct {
 	Mode string `msgpack:"mode"`
 	Rule string `msgpack:"rule"`
 	Spec Spec   `msgpack:"spec"`
+
+	State `msgpack:"state"`
+}
+
+type State struct {
+	Next time.Time `msgpack:"next"`
+	Prev time.Time `msgpack:"prev"`
 }
 
 type Spec interface{}
