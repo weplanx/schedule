@@ -9,7 +9,7 @@ require (
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/vmihailenco/msgpack/v5 v5.3.5
 	go.uber.org/zap v1.21.0
-	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
+	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (
