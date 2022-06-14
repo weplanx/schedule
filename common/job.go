@@ -3,24 +3,30 @@ package common
 import "time"
 
 type Job struct {
-	Mode   string `msgpack:"mode"`
-	Spec   string `msgpack:"spec"`
+	// 触发模式
+	Mode string `msgpack:"mode"`
+
+	// 时间规格
+	Spec string `msgpack:"spec"`
+
+	// 配置
 	Option Option `msgpack:"option"`
 
+	// 状态
 	State `msgpack:"state"`
-}
-
-type State struct {
-	Next time.Time `msgpack:"next"`
-	Prev time.Time `msgpack:"prev"`
 }
 
 type Option interface{}
 
 type HttpOption struct {
-	Url     string                 `msgpack:"url"`
-	Headers map[string]string      `msgpack:"headers"`
-	Body    map[string]interface{} `msgpack:"body"`
+	// 网络回调地址
+	Url string `msgpack:"url"`
+
+	// 请求头部
+	Headers map[string]string `msgpack:"headers"`
+
+	// 请求体
+	Body map[string]interface{} `msgpack:"body"`
 }
 
 // HttpJob HTTP回调
@@ -30,4 +36,12 @@ func HttpJob(spec string, option HttpOption) Job {
 		Spec:   spec,
 		Option: option,
 	}
+}
+
+type State struct {
+	// 下次时间
+	Next time.Time `msgpack:"next"`
+
+	// 上次时间
+	Prev time.Time `msgpack:"prev"`
 }
