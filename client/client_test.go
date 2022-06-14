@@ -23,38 +23,51 @@ func TestMain(m *testing.M) {
 	if err != nil {
 		panic(err)
 	}
-	if x, err = New("alpha", nc, js); err != nil {
+	if x, err = New(values.Namespace, nc, js); err != nil {
 		panic(err)
 	}
 	os.Exit(m.Run())
 }
 
+func TestSchedule_List(t *testing.T) {
+	result, err := x.List()
+	if err != nil {
+		t.Error(err)
+	}
+	t.Log(result)
+}
+
+var key = "69dd963c-2ec3-1f11-f1a5-ddcc1daf1f8f"
+
 func TestSchedule_Set(t *testing.T) {
-	job := common.HttpJob("@every 1s", common.HttpOption{
-		Url: "http://mac:8080/ping",
+	job1 := common.HttpJob("@every 5s", common.HttpOption{
+		Url: "https://api.kainonly.com",
 	})
-	if err := x.Set("ping", job); err != nil {
+	job2 := common.HttpJob("@every 10s", common.HttpOption{
+		Url: "https://api.kainonly.com",
+	})
+	if err := x.Set(key, job1, job2); err != nil {
 		t.Error(err)
 	}
 }
 
 func TestSchedule_Update(t *testing.T) {
-	job := common.HttpJob("@every 5s", common.HttpOption{
-		Url: "http://mac:8080/ping",
+	job := common.HttpJob("@every 15s", common.HttpOption{
+		Url: "https://api.kainonly.com",
 		Headers: map[string]string{
-			"x-token": "zxc",
+			"x-token": "6xvLvuQUhc2$j8H#",
 		},
 		Body: map[string]interface{}{
-			"name": "kain",
+			"name": key,
 		},
 	})
-	if err := x.Set("ping", job); err != nil {
+	if err := x.Set(key, job); err != nil {
 		t.Error(err)
 	}
 }
 
 func TestSchedule_Get(t *testing.T) {
-	data, err := x.Get("ping")
+	data, err := x.Get(key)
 	if err != nil {
 		t.Error(err)
 	}
@@ -62,7 +75,7 @@ func TestSchedule_Get(t *testing.T) {
 }
 
 func TestSchedule_Remove(t *testing.T) {
-	if err := x.Remove("ping"); err != nil {
+	if err := x.Remove(key); err != nil {
 		t.Error(err)
 	}
 }

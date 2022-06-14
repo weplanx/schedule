@@ -1,6 +1,7 @@
 package client
 
 import (
+	"errors"
 	"fmt"
 	"github.com/nats-io/nats.go"
 	"github.com/vmihailenco/msgpack/v5"
@@ -15,6 +16,7 @@ type Schedule struct {
 	Store     nats.ObjectStore
 }
 
+// New 创建客户端
 func New(namespace string, nc *nats.Conn, js nats.JetStreamContext) (x *Schedule, err error) {
 	x = &Schedule{
 		Namespace: namespace,
@@ -25,6 +27,22 @@ func New(namespace string, nc *nats.Conn, js nats.JetStreamContext) (x *Schedule
 		Bucket: fmt.Sprintf(`%s_schedules`, x.Namespace),
 	}); err != nil {
 		return
+	}
+	return
+}
+
+// List 列出配置标识
+func (x *Schedule) List() (keys []string, err error) {
+	var infos []*nats.ObjectInfo
+	if infos, err = x.Store.List(); err != nil {
+		if errors.Is(err, nats.ErrNoObjectsFound) {
+			return []string{}, nil
+		}
+		return
+	}
+	keys = make([]string, len(infos))
+	for i, x := range infos {
+		keys[i] = x.Name
 	}
 	return
 }

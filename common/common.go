@@ -9,6 +9,7 @@ import (
 	"os"
 )
 
+// SetValues 设置配置
 func SetValues() (values *Values, err error) {
 	if _, err = os.Stat("./config/config.yml"); os.IsNotExist(err) {
 		err = errors.New("静态配置不存在，请检查路径 [./config/config.yml]")

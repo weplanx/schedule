@@ -118,6 +118,7 @@ func (x *App) Run() (err error) {
 	return
 }
 
+// SubSync 节点时间对齐
 func (x *App) SubSync() (err error) {
 	subject := fmt.Sprintf(`%s.sync`, x.Values.Namespace)
 	if _, err = x.Nats.Subscribe(subject, func(msg *nats.Msg) {
@@ -135,6 +136,7 @@ func (x *App) SubSync() (err error) {
 	return
 }
 
+// SubState 返回任务状态
 func (x *App) SubState() (err error) {
 	name := fmt.Sprintf(`%s:state`, x.Values.Namespace)
 	subject := fmt.Sprintf(`%s.state`, x.Values.Namespace)
