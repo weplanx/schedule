@@ -66,22 +66,29 @@ func (x *App) Set(key string, jobs ...common.Job) (err error) {
 
 // Start 启动任务
 func (x *App) Start(key string) {
-	x.values[key].Start()
+	if c, ok := x.values[key]; ok {
+		c.Start()
+	}
 }
 
 // Stop 关闭任务
 func (x *App) Stop(key string) {
-	x.values[key].Stop()
+	if c, ok := x.values[key]; ok {
+		c.Stop()
+	}
 }
 
 // State 任务状态
 func (x *App) State(key string) []cron.Entry {
-	return x.values[key].Entries()
+	if c, ok := x.values[key]; ok {
+		return c.Entries()
+	}
+	return []cron.Entry{}
 }
 
 // Remove 移除任务
 func (x *App) Remove(key string) {
-	if c, exists := x.values[key]; exists {
+	if c, ok := x.values[key]; ok {
 		c.Stop()
 		delete(x.values, key)
 	}

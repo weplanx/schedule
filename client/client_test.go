@@ -74,6 +74,14 @@ func TestSchedule_Get(t *testing.T) {
 	t.Log(data)
 }
 
+func TestSchedule_Status(t *testing.T) {
+	result, err := x.Status("62ad37d1cb8a8fb377bccae1", false)
+	if err != nil {
+		t.Error(err)
+	}
+	t.Log(string(result))
+}
+
 func TestSchedule_Remove(t *testing.T) {
 	if err := x.Remove(key); err != nil {
 		t.Error(err)

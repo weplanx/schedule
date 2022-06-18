@@ -83,6 +83,23 @@ func (x *Schedule) Set(key string, jobs ...common.Job) (err error) {
 	return
 }
 
+// Status 设置状态
+func (x *Schedule) Status(key string, running bool) (result []byte, err error) {
+	subject := fmt.Sprintf(`%s.status`, x.Namespace)
+	var b []byte
+	if b, err = msgpack.Marshal(common.Status{
+		Key:     key,
+		Running: running,
+	}); err != nil {
+		return
+	}
+	var msg *nats.Msg
+	if msg, err = x.Nats.Request(subject, b, time.Second*3); err != nil {
+		return
+	}
+	return msg.Data, nil
+}
+
 // Remove 移除调度
 func (x *Schedule) Remove(key string) (err error) {
 	if err = x.Store.Delete(key); err != nil {

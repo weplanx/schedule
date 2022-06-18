@@ -26,8 +26,12 @@ func (x *App) Run() (err error) {
 	if err = x.SubSync(); err != nil {
 		return
 	}
-	// 订阅状态反馈
+	// 订阅时间状况
 	if err = x.SubState(); err != nil {
+		return
+	}
+	// 订阅状态设置
+	if err = x.SubStatus(); err != nil {
 		return
 	}
 	// 设置定时
@@ -136,7 +140,7 @@ func (x *App) SubSync() (err error) {
 	return
 }
 
-// SubState 返回任务状态
+// SubState 返回任务时间状况
 func (x *App) SubState() (err error) {
 	name := fmt.Sprintf(`%s:state`, x.Values.Namespace)
 	subject := fmt.Sprintf(`%s.state`, x.Values.Namespace)
@@ -151,6 +155,32 @@ func (x *App) SubState() (err error) {
 		}
 		b, _ := msgpack.Marshal(values)
 		msg.Respond(b)
+	}); err != nil {
+		return
+	}
+	return
+}
+
+// SubStatus 设置任务状态
+func (x *App) SubStatus() (err error) {
+	subject := fmt.Sprintf(`%s.status`, x.Values.Namespace)
+	if _, err = x.Nats.Subscribe(subject, func(msg *nats.Msg) {
+		var data common.Status
+		if err := msgpack.Unmarshal(msg.Data, &data); err != nil {
+			return
+		}
+		if data.Running {
+			x.Start(data.Key)
+			x.Log.Debug("任务状态已启动",
+				zap.String("key", data.Key),
+			)
+		} else {
+			x.Stop(data.Key)
+			x.Log.Debug("任务状态已停止",
+				zap.String("key", data.Key),
+			)
+		}
+		msg.Respond([]byte("ok"))
 	}); err != nil {
 		return
 	}
