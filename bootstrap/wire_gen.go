@@ -4,30 +4,29 @@
 //go:build !wireinject
 // +build !wireinject
 
-package main
+package bootstrap
 
 import (
 	"github.com/weplanx/schedule/app"
-	"github.com/weplanx/schedule/bootstrap"
 	"github.com/weplanx/schedule/common"
 )
 
 // Injectors from wire.go:
 
 func App(value *common.Values) (*app.App, error) {
-	logger, err := bootstrap.UseZap(value)
+	logger, err := UseZap(value)
 	if err != nil {
 		return nil, err
 	}
-	conn, err := bootstrap.UseNats(value)
+	conn, err := UseNats(value)
 	if err != nil {
 		return nil, err
 	}
-	jetStreamContext, err := bootstrap.UseJetStream(conn)
+	jetStreamContext, err := UseJetStream(conn)
 	if err != nil {
 		return nil, err
 	}
-	objectStore, err := bootstrap.UseStore(value, jetStreamContext)
+	objectStore, err := UseStore(value, jetStreamContext)
 	if err != nil {
 		return nil, err
 	}

@@ -1,6 +1,6 @@
 module github.com/weplanx/schedule
 
-go 1.17
+go 1.19
 
 require (
 	github.com/google/wire v0.5.0

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/weplanx/schedule/bootstrap"
 	"github.com/weplanx/schedule/common"
 	"os"
 	"os/signal"
@@ -11,7 +12,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	app, err := App(v)
+	app, err := bootstrap.App(v)
 	if err != nil {
 		panic(err)
 	}
