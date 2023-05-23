@@ -10,9 +10,7 @@ import (
 	"time"
 )
 
-// Run 启动服务
 func (x *App) Run() (err error) {
-	// 初始化 Stream
 	name := fmt.Sprintf(`%s:schedules`, x.Values.Namespace)
 	subject := fmt.Sprintf(`%s.schedules`, x.Values.Namespace)
 	if _, err = x.Js.AddStream(&nats.StreamConfig{
@@ -22,19 +20,15 @@ func (x *App) Run() (err error) {
 	}); err != nil {
 		return
 	}
-	// 订阅节点同步
 	if err = x.SubSync(); err != nil {
 		return
 	}
-	// 订阅时间状况
 	if err = x.SubState(); err != nil {
 		return
 	}
-	// 订阅状态设置
 	if err = x.SubStatus(); err != nil {
 		return
 	}
-	// 设置定时
 	var objects []*nats.ObjectInfo
 	if objects, err = x.Store.List(); errors.Is(err, nats.ErrNoObjectsFound) {
 		if errors.Is(err, nats.ErrNoObjectsFound) {
@@ -122,7 +116,6 @@ func (x *App) Run() (err error) {
 	return
 }
 
-// SubSync 节点时间对齐
 func (x *App) SubSync() (err error) {
 	subject := fmt.Sprintf(`%s.sync`, x.Values.Namespace)
 	if _, err = x.Nats.Subscribe(subject, func(msg *nats.Msg) {
@@ -140,7 +133,6 @@ func (x *App) SubSync() (err error) {
 	return
 }
 
-// SubState 返回任务时间状况
 func (x *App) SubState() (err error) {
 	name := fmt.Sprintf(`%s:state`, x.Values.Namespace)
 	subject := fmt.Sprintf(`%s.state`, x.Values.Namespace)
@@ -161,7 +153,6 @@ func (x *App) SubState() (err error) {
 	return
 }
 
-// SubStatus 设置任务状态
 func (x *App) SubStatus() (err error) {
 	subject := fmt.Sprintf(`%s.status`, x.Values.Namespace)
 	if _, err = x.Nats.Subscribe(subject, func(msg *nats.Msg) {

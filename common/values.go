@@ -7,7 +7,6 @@ import (
 	"os"
 )
 
-// SetValues 设置配置
 func SetValues() (values *Values, err error) {
 	if _, err = os.Stat("./config/config.yml"); os.IsNotExist(err) {
 		err = errors.New("静态配置不存在，请检查路径 [./config/config.yml]")
@@ -26,14 +25,9 @@ func SetValues() (values *Values, err error) {
 }
 
 type Values struct {
-	// 启动调试
-	Debug bool `yaml:"debug"`
-
-	// 命名空间
+	Debug     bool   `yaml:"debug"`
 	Namespace string `yaml:"namespace"`
-
-	// Nats 配置
-	Nats struct {
+	Nats      struct {
 		Hosts []string `yaml:"hosts"`
 		Nkey  string   `yaml:"nkey"`
 	} `yaml:"nats"`

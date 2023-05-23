@@ -25,7 +25,6 @@ func New(i *common.Inject) *App {
 	}
 }
 
-// Set 设置任务发布
 func (x *App) Set(key string, jobs ...common.Job) (err error) {
 	if x.values[key] != nil {
 		x.Remove(key)
@@ -64,21 +63,18 @@ func (x *App) Set(key string, jobs ...common.Job) (err error) {
 	return
 }
 
-// Start 启动任务
 func (x *App) Start(key string) {
 	if c, ok := x.values[key]; ok {
 		c.Start()
 	}
 }
 
-// Stop 关闭任务
 func (x *App) Stop(key string) {
 	if c, ok := x.values[key]; ok {
 		c.Stop()
 	}
 }
 
-// State 任务状态
 func (x *App) State(key string) []cron.Entry {
 	if c, ok := x.values[key]; ok {
 		return c.Entries()
@@ -86,7 +82,6 @@ func (x *App) State(key string) []cron.Entry {
 	return []cron.Entry{}
 }
 
-// Remove 移除任务
 func (x *App) Remove(key string) {
 	if c, ok := x.values[key]; ok {
 		c.Stop()
@@ -99,7 +94,6 @@ type Sync struct {
 	Time time.Time
 }
 
-// PubSync 发布同步工作
 func (x *App) PubSync(key string) (err error) {
 	subject := fmt.Sprintf(`%s.sync`, x.Values.Namespace)
 	var b []byte

@@ -16,7 +16,6 @@ type Schedule struct {
 	Store     nats.ObjectStore
 }
 
-// New 创建客户端
 func New(namespace string, nc *nats.Conn, js nats.JetStreamContext) (x *Schedule, err error) {
 	x = &Schedule{
 		Namespace: namespace,
@@ -31,7 +30,6 @@ func New(namespace string, nc *nats.Conn, js nats.JetStreamContext) (x *Schedule
 	return
 }
 
-// List 列出配置标识
 func (x *Schedule) List() (keys []string, err error) {
 	var infos []*nats.ObjectInfo
 	if infos, err = x.Store.List(); err != nil {
@@ -47,7 +45,6 @@ func (x *Schedule) List() (keys []string, err error) {
 	return
 }
 
-// Get 获取调度信息
 func (x *Schedule) Get(key string) (jobs []common.Job, err error) {
 	var b []byte
 	if b, err = x.Store.GetBytes(key); err != nil {
@@ -71,7 +68,6 @@ func (x *Schedule) Get(key string) (jobs []common.Job, err error) {
 	return
 }
 
-// Set 设置调度
 func (x *Schedule) Set(key string, jobs ...common.Job) (err error) {
 	var b []byte
 	if b, err = msgpack.Marshal(jobs); err != nil {
@@ -83,7 +79,6 @@ func (x *Schedule) Set(key string, jobs ...common.Job) (err error) {
 	return
 }
 
-// Status 设置状态
 func (x *Schedule) Status(key string, running bool) (result []byte, err error) {
 	subject := fmt.Sprintf(`%s.status`, x.Namespace)
 	var b []byte
@@ -100,7 +95,6 @@ func (x *Schedule) Status(key string, running bool) (result []byte, err error) {
 	return msg.Data, nil
 }
 
-// Remove 移除调度
 func (x *Schedule) Remove(key string) (err error) {
 	if err = x.Store.Delete(key); err != nil {
 		return

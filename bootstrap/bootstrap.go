@@ -18,7 +18,6 @@ var Provides = wire.NewSet(
 	UseStore,
 )
 
-// UseZap 初始化日志
 func UseZap(values *common.Values) (log *zap.Logger, err error) {
 	if values.Debug {
 		if log, err = zap.NewDevelopment(); err != nil {
@@ -32,7 +31,6 @@ func UseZap(values *common.Values) (log *zap.Logger, err error) {
 	return
 }
 
-// UseNats 初始化 Nats
 func UseNats(values *common.Values) (nc *nats.Conn, err error) {
 	var kp nkeys.KeyPair
 	if kp, err = nkeys.FromSeed([]byte(values.Nats.Nkey)); err != nil {
@@ -61,12 +59,10 @@ func UseNats(values *common.Values) (nc *nats.Conn, err error) {
 	return
 }
 
-// UseJetStream 初始化 Nats JetStream
 func UseJetStream(nc *nats.Conn) (nats.JetStreamContext, error) {
 	return nc.JetStream(nats.PublishAsyncMaxPending(256))
 }
 
-// UseStore 初始化配置存储
 func UseStore(values *common.Values, js nats.JetStreamContext) (nats.ObjectStore, error) {
 	return js.CreateObjectStore(&nats.ObjectStoreConfig{
 		Bucket: fmt.Sprintf(`%s_schedules`, values.Namespace),
