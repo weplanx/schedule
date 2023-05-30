@@ -13,12 +13,16 @@ import (
 
 // Injectors from wire.go:
 
-func App(value *common.Values) (*app.App, error) {
-	logger, err := UseZap(value)
+func NewApp() (*app.App, error) {
+	values, err := LoadStaticValues()
 	if err != nil {
 		return nil, err
 	}
-	conn, err := UseNats(value)
+	logger, err := UseZap()
+	if err != nil {
+		return nil, err
+	}
+	conn, err := UseNats(values)
 	if err != nil {
 		return nil, err
 	}
@@ -26,12 +30,12 @@ func App(value *common.Values) (*app.App, error) {
 	if err != nil {
 		return nil, err
 	}
-	objectStore, err := UseStore(value, jetStreamContext)
+	objectStore, err := UseStore(values, jetStreamContext)
 	if err != nil {
 		return nil, err
 	}
 	inject := &common.Inject{
-		Values: value,
+		Values: values,
 		Log:    logger,
 		Nats:   conn,
 		Js:     jetStreamContext,

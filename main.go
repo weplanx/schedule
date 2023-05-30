@@ -2,17 +2,12 @@ package main
 
 import (
 	"github.com/weplanx/schedule/bootstrap"
-	"github.com/weplanx/schedule/common"
 	"os"
 	"os/signal"
 )
 
 func main() {
-	v, err := common.SetValues()
-	if err != nil {
-		panic(err)
-	}
-	app, err := bootstrap.App(v)
+	app, err := bootstrap.NewApp()
 	if err != nil {
 		panic(err)
 	}

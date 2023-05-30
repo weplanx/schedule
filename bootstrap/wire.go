@@ -9,7 +9,7 @@ import (
 	"github.com/weplanx/schedule/common"
 )
 
-func App(value *common.Values) (*app.App, error) {
+func NewApp() (*app.App, error) {
 	wire.Build(
 		wire.Struct(new(common.Inject), "*"),
 		Provides,

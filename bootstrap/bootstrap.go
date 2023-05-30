@@ -2,24 +2,35 @@ package bootstrap
 
 import (
 	"fmt"
+	"github.com/caarlos0/env/v6"
 	"github.com/google/wire"
 	"github.com/nats-io/nats.go"
 	"github.com/nats-io/nkeys"
 	"github.com/weplanx/schedule/common"
 	"go.uber.org/zap"
+	"os"
 	"strings"
 	"time"
 )
 
 var Provides = wire.NewSet(
+	LoadStaticValues,
 	UseZap,
 	UseNats,
 	UseJetStream,
 	UseStore,
 )
 
-func UseZap(values *common.Values) (log *zap.Logger, err error) {
-	if values.Debug {
+func LoadStaticValues() (values *common.Values, err error) {
+	values = new(common.Values)
+	if err = env.Parse(values); err != nil {
+		return
+	}
+	return
+}
+
+func UseZap() (log *zap.Logger, err error) {
+	if os.Getenv("MODE") != "release" {
 		if log, err = zap.NewDevelopment(); err != nil {
 			return
 		}
