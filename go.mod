@@ -1,25 +1,25 @@
-module github.com/weplanx/schedule
+module github.com/weplanx/workflow
 
 go 1.20
 
 require (
-	github.com/caarlos0/env/v6 v6.10.1
+	github.com/caarlos0/env/v9 v9.0.0
 	github.com/google/wire v0.5.0
-	github.com/nats-io/nats.go v1.16.0
-	github.com/nats-io/nkeys v0.3.0
+	github.com/nats-io/nats.go v1.28.0
+	github.com/nats-io/nkeys v0.4.4
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/vmihailenco/msgpack/v5 v5.3.5
-	go.uber.org/zap v1.21.0
+	go.uber.org/zap v1.25.0
 )
 
 require (
 	github.com/golang/protobuf v1.5.2 // indirect
+	github.com/klauspost/compress v1.16.7 // indirect
 	github.com/nats-io/nats-server/v2 v2.8.2 // indirect
 	github.com/nats-io/nuid v1.0.1 // indirect
 	github.com/vmihailenco/tagparser/v2 v2.0.0 // indirect
-	go.uber.org/atomic v1.7.0 // indirect
-	go.uber.org/multierr v1.6.0 // indirect
-	golang.org/x/crypto v0.0.0-20220315160706-3147a52a75dd // indirect
+	go.uber.org/multierr v1.11.0 // indirect
+	golang.org/x/crypto v0.12.0 // indirect
+	golang.org/x/sys v0.11.0 // indirect
 	google.golang.org/protobuf v1.28.0 // indirect
-	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

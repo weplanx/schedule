@@ -7,8 +7,8 @@
 package bootstrap
 
 import (
-	"github.com/weplanx/schedule/app"
-	"github.com/weplanx/schedule/common"
+	"github.com/weplanx/workflow/schedule/app"
+	"github.com/weplanx/workflow/schedule/common"
 )
 
 // Injectors from wire.go:
@@ -30,17 +30,16 @@ func NewApp() (*app.App, error) {
 	if err != nil {
 		return nil, err
 	}
-	objectStore, err := UseStore(values, jetStreamContext)
+	keyValue, err := UseKeyValue(values, jetStreamContext)
 	if err != nil {
 		return nil, err
 	}
 	inject := &common.Inject{
-		Values: values,
-		Log:    logger,
-		Nats:   conn,
-		Js:     jetStreamContext,
-		Store:  objectStore,
+		Values:   values,
+		Log:      logger,
+		Nats:     conn,
+		KeyValue: keyValue,
 	}
-	appApp := app.New(inject)
+	appApp := app.Initialize(inject)
 	return appApp, nil
 }

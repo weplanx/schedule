@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/weplanx/schedule/bootstrap"
+	"github.com/weplanx/workflow/schedule/bootstrap"
 	"os"
 	"os/signal"
 )

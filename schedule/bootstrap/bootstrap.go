@@ -2,23 +2,13 @@ package bootstrap
 
 import (
 	"fmt"
-	"github.com/caarlos0/env/v6"
-	"github.com/google/wire"
+	"github.com/caarlos0/env/v9"
 	"github.com/nats-io/nats.go"
 	"github.com/nats-io/nkeys"
-	"github.com/weplanx/schedule/common"
+	"github.com/weplanx/workflow/schedule/common"
 	"go.uber.org/zap"
 	"os"
 	"strings"
-	"time"
-)
-
-var Provides = wire.NewSet(
-	LoadStaticValues,
-	UseZap,
-	UseNats,
-	UseJetStream,
-	UseStore,
 )
 
 func LoadStaticValues() (values *common.Values, err error) {
@@ -53,13 +43,10 @@ func UseNats(values *common.Values) (nc *nats.Conn, err error) {
 		return
 	}
 	if !nkeys.IsValidPublicUserKey(pub) {
-		return nil, fmt.Errorf("nkey 验证失败")
+		return nil, fmt.Errorf("nkey verification failed")
 	}
 	if nc, err = nats.Connect(
 		strings.Join(values.Nats.Hosts, ","),
-		nats.MaxReconnects(5),
-		nats.ReconnectWait(2*time.Second),
-		nats.ReconnectJitter(500*time.Millisecond, 2*time.Second),
 		nats.Nkey(pub, func(nonce []byte) ([]byte, error) {
 			sig, _ := kp.Sign(nonce)
 			return sig, nil
@@ -74,8 +61,8 @@ func UseJetStream(nc *nats.Conn) (nats.JetStreamContext, error) {
 	return nc.JetStream(nats.PublishAsyncMaxPending(256))
 }
 
-func UseStore(values *common.Values, js nats.JetStreamContext) (nats.ObjectStore, error) {
-	return js.CreateObjectStore(&nats.ObjectStoreConfig{
-		Bucket: fmt.Sprintf(`%s_schedules`, values.Namespace),
+func UseKeyValue(values *common.Values, js nats.JetStreamContext) (nats.KeyValue, error) {
+	return js.CreateKeyValue(&nats.KeyValueConfig{
+		Bucket: fmt.Sprintf(`schedules_%s`, values.Id),
 	})
 }
