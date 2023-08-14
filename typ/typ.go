@@ -36,3 +36,9 @@ type ScheduleStatus struct {
 	Key   string `msgpack:"key"`
 	Value bool   `msgpack:"value"`
 }
+
+type ExcelMetadata struct {
+	Name  string   `msgpack:"name"`
+	Parts []string `msgpack:"parts"`
+}
+type ExcelSheets map[string][][]interface{}

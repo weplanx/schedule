@@ -8,6 +8,7 @@ import (
 	"github.com/tencentyun/cos-go-sdk-v5"
 	"github.com/vmihailenco/msgpack/v5"
 	"github.com/weplanx/workflow/excel/common"
+	"github.com/weplanx/workflow/typ"
 	"github.com/xuri/excelize/v2"
 	"io"
 	"net/http"
@@ -84,7 +85,7 @@ func (x *API) EventInvoke(w http.ResponseWriter, req *http.Request) {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		if err = x.toExcel(ctx, resp.Body); err != nil {
+		if err = x.ParseExcel(ctx, resp.Body); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -94,13 +95,8 @@ func (x *API) EventInvoke(w http.ResponseWriter, req *http.Request) {
 	w.Write([]byte(fmt.Sprintf(`已触发: %s`, time.Now())))
 }
 
-type Metadata struct {
-	Name  string   `msgpack:"name"`
-	Parts []string `msgpack:"parts"`
-}
-
-func (x *API) toExcel(ctx context.Context, body io.Reader) (err error) {
-	var metadata Metadata
+func (x *API) ParseExcel(ctx context.Context, body io.Reader) (err error) {
+	var metadata typ.ExcelMetadata
 	if err = msgpack.NewDecoder(body).Decode(&metadata); err != nil {
 		return
 	}

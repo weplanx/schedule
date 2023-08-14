@@ -42,7 +42,7 @@ func (x *Schedule) Get(key string) (option typ.ScheduleOption, err error) {
 		return
 	}
 	var msg *nats.Msg
-	subj := fmt.Sprintf(`%s.schedules-state.%s`, x.Namespace, x.Id)
+	subj := fmt.Sprintf(`%s.schedules.%s`, x.Namespace, x.Id)
 	if msg, err = x.Nats.Request(subj, []byte(key), time.Second*3); err != nil {
 		return
 	}

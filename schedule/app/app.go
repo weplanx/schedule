@@ -156,8 +156,8 @@ func (x *App) GetState(key string) []cron.Entry {
 }
 
 func (x *App) State() (err error) {
-	subj := fmt.Sprintf(`%s.schedules-state.%s`, x.V.Namespace, x.V.Id)
-	queue := fmt.Sprintf(`%s:schedules-state:%s`, x.V.Namespace, x.V.Id)
+	subj := fmt.Sprintf(`%s.schedules.%s`, x.V.Namespace, x.V.Id)
+	queue := fmt.Sprintf(`%s:schedules:%s`, x.V.Namespace, x.V.Id)
 	if _, err = x.Nats.QueueSubscribe(subj, queue, func(msg *nats.Msg) {
 		key := string(msg.Data)
 		var states []typ.ScheduleState
