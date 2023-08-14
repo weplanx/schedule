@@ -7,8 +7,8 @@
 package bootstrap
 
 import (
-	"excel/api"
-	"excel/common"
+	"github.com/weplanx/workflow/excel/api"
+	"github.com/weplanx/workflow/excel/common"
 )
 
 // Injectors from wire.go:

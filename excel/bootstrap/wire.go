@@ -4,9 +4,9 @@
 package bootstrap
 
 import (
-	"excel/api"
-	"excel/common"
 	"github.com/google/wire"
+	"github.com/weplanx/workflow/excel/api"
+	"github.com/weplanx/workflow/excel/common"
 )
 
 func NewAPI() (*api.API, error) {

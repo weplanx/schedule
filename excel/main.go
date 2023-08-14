@@ -1,7 +1,7 @@
 package main
 
 import (
-	"excel/bootstrap"
+	"github.com/weplanx/workflow/excel/bootstrap"
 	"net/http"
 )
 
