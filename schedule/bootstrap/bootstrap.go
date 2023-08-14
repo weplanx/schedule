@@ -63,6 +63,6 @@ func UseJetStream(nc *nats.Conn) (nats.JetStreamContext, error) {
 
 func UseKeyValue(values *common.Values, js nats.JetStreamContext) (nats.KeyValue, error) {
 	return js.CreateKeyValue(&nats.KeyValueConfig{
-		Bucket: fmt.Sprintf(`schedules_%s`, values.Id),
+		Bucket: fmt.Sprintf(`%s_schedules`, values.Namespace),
 	})
 }

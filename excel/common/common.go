@@ -3,7 +3,7 @@ package common
 import "github.com/tencentyun/cos-go-sdk-v5"
 
 type Inject struct {
-	Values *Values
+	V      *Values
 	Client *cos.Client
 }
 

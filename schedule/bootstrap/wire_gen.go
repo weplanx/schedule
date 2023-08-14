@@ -35,7 +35,7 @@ func NewApp() (*app.App, error) {
 		return nil, err
 	}
 	inject := &common.Inject{
-		Values:   values,
+		V:        values,
 		Log:      logger,
 		Nats:     conn,
 		KeyValue: keyValue,

@@ -6,16 +6,16 @@ import (
 )
 
 type Inject struct {
-	Values   *Values
+	V        *Values
 	Log      *zap.Logger
 	Nats     *nats.Conn
 	KeyValue nats.KeyValue
 }
 
 type Values struct {
-	Id string `env:"ID,required"`
-
-	Nats struct {
+	Namespace string `env:"NAMESPACE,required"`
+	Id        string `env:"ID,required"`
+	Nats      struct {
 		Hosts []string `env:"HOSTS,required" envSeparator:","`
 		Nkey  string   `env:"NKEY,required"`
 	} `envPrefix:"NATS_"`

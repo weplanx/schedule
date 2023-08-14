@@ -23,7 +23,7 @@ func NewAPI() (*api.API, error) {
 		return nil, err
 	}
 	inject := &common.Inject{
-		Values: values,
+		V:      values,
 		Client: client,
 	}
 	apiAPI := &api.API{

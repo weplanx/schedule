@@ -83,12 +83,12 @@ func (x *App) Set(key string, jobs ...typ.ScheduleJob) (err error) {
 
 func (x *App) SetJob(key string, c *cron.Cron, index int, job typ.ScheduleJob) (err error) {
 	if _, err = c.AddFunc(job.Spec, func() {
-		subj := fmt.Sprintf(`schedules.%s`, x.Values.Id)
-		b, _ := msgpack.Marshal(map[string]interface{}{
-			"key":    key,
-			"index":  index,
-			"mode":   job.Mode,
-			"option": job.Option,
+		subj := fmt.Sprintf(`%s.jobs.%s`, x.V.Namespace, x.V.Id)
+		b, _ := msgpack.Marshal(typ.Job{
+			Key:    key,
+			Index:  index,
+			Mode:   job.Mode,
+			Option: job.Option,
 		})
 		if err = x.Nats.Publish(subj, b); err != nil {
 			x.Log.Error("Publish:fail",
