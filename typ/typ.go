@@ -15,10 +15,15 @@ type HttpOption struct {
 	Body    map[string]interface{} `msgpack:"body"`
 }
 
+type ScheduleOption struct {
+	Status bool          `msgpack:"status"`
+	Jobs   []ScheduleJob `msgpack:"jobs"`
+}
+
 type ScheduleJob struct {
-	Mode          string                 `msgpack:"mode"`
-	Spec          string                 `msgpack:"spec"`
-	Option        map[string]interface{} `msgpack:"option"`
+	Mode          string      `msgpack:"mode"`
+	Spec          string      `msgpack:"spec"`
+	Option        interface{} `msgpack:"option"`
 	ScheduleState `msgpack:"state"`
 }
 
@@ -28,6 +33,6 @@ type ScheduleState struct {
 }
 
 type ScheduleStatus struct {
-	Key     string `msgpack:"key"`
-	Running bool   `msgpack:"running"`
+	Key   string `msgpack:"key"`
+	Value bool   `msgpack:"value"`
 }

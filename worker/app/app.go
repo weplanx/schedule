@@ -34,7 +34,7 @@ func (x *App) Run(ctx context.Context) (err error) {
 		return
 	}
 	subj := fmt.Sprintf(`%s.jobs.*`, x.V.Namespace)
-	queue := fmt.Sprintf(`%s.worker`, x.V.Namespace)
+	queue := fmt.Sprintf(`%s:worker`, x.V.Namespace)
 	if _, err = x.Nats.QueueSubscribe(subj, queue, func(msg *nats.Msg) {
 		var job typ.Job
 		msgpack.Unmarshal(msg.Data, &job)
@@ -102,6 +102,10 @@ func (x *App) HTTPMode(job typ.Job) (err error) {
 		zap.Int("index", job.Index),
 		zap.Any("headers", option.Headers),
 		zap.Any("body", option.Body),
+		zap.Any("response", M{
+			"status": resp.StatusCode(),
+			"body":   resp,
+		}),
 	)
 	return
 }
