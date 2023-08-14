@@ -8,7 +8,7 @@ import (
 	"net/url"
 )
 
-func LoadValues() (values *common.Values, err error) {
+func LoadStaticValues() (values *common.Values, err error) {
 	values = new(common.Values)
 	if err = env.Parse(values); err != nil {
 		return

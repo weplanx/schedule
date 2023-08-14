@@ -9,11 +9,9 @@ type Inject struct {
 
 type Values struct {
 	Address string `env:"ADDRESS" envDefault:":9000"`
-	Cos     `envPrefix:"COS_"`
-}
-
-type Cos struct {
-	Url       string `env:"URL"`
-	SecretId  string `env:"SECRETID"`
-	SecretKey string `env:"SECRETKEY"`
+	Cos     struct {
+		Url       string `env:"URL"`
+		SecretId  string `env:"SECRETID"`
+		SecretKey string `env:"SECRETKEY"`
+	} `envPrefix:"COS_"`
 }

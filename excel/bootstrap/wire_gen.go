@@ -14,7 +14,7 @@ import (
 // Injectors from wire.go:
 
 func NewAPI() (*api.API, error) {
-	values, err := LoadValues()
+	values, err := LoadStaticValues()
 	if err != nil {
 		return nil, err
 	}
