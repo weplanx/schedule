@@ -21,9 +21,9 @@ jobs:
           go-version: ~1.21
       - run: |
           go mod tidy
-          go build -o dist/excel ./excel
-          go build -o dist/schedule ./schedule
-          go build -o dist/worker ./worker
+          go build -o excel/main ./excel
+          go build -o schedule/main ./schedule
+          go build -o worker/main ./worker
         env:
           CGO_ENABLED: 0
           GO111MODULE: on

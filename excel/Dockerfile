@@ -2,7 +2,7 @@ FROM alpine:edge
 
 RUN apk add tzdata
 
-COPY ./dist/excel /app/main
+COPY main /app/main
 WORKDIR /app
 
 EXPOSE 9000

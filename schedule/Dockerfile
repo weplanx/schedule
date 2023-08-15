@@ -2,7 +2,7 @@ FROM alpine:edge
 
 RUN apk add tzdata
 
-COPY ./dist/main /app/schedule
+COPY main /app/main
 WORKDIR /app
 
 CMD [ "./main" ]
