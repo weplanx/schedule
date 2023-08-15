@@ -24,8 +24,8 @@ jobs:
           go-version: ~1.21
 
       - run: |
-          cd schedule
           go mod tidy
+          cd schedule
           go build -o dist/main
         env:
           CGO_ENABLED: 0

@@ -24,8 +24,8 @@ jobs:
           go-version: ~1.21
 
       - run: |
-          cd excel
           go mod tidy
+          cd excel
           go build -o dist/main
         env:
           CGO_ENABLED: 0
