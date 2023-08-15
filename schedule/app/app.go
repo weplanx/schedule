@@ -3,6 +3,7 @@ package app
 import (
 	"errors"
 	"fmt"
+	"github.com/google/uuid"
 	"github.com/nats-io/nats.go"
 	"github.com/robfig/cron/v3"
 	"github.com/vmihailenco/msgpack/v5"
@@ -15,12 +16,14 @@ import (
 
 type App struct {
 	*common.Inject
-	M sync.Map
+	Node string
+	M    sync.Map
 }
 
 func Initialize(i *common.Inject) *App {
 	return &App{
 		Inject: i,
+		Node:   uuid.New().String(),
 		M:      sync.Map{},
 	}
 }
@@ -87,6 +90,10 @@ func (x *App) Run() (err error) {
 			}
 		}
 	}()
+
+	if err = x.State(); err != nil {
+		return
+	}
 	return
 }
 
