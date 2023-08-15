@@ -52,7 +52,7 @@ jobs:
           images: ${{ env.REGISTRY }}/excel
 
       - name: Push Excel
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v4
         with:
           context: ./excel
           push: true
@@ -75,7 +75,7 @@ jobs:
           images: ${{ env.REGISTRY }}/schedule
 
       - name: Push Schedule
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v4
         with:
           context: ./schedule
           push: true
@@ -98,7 +98,7 @@ jobs:
           images: ${{ env.REGISTRY }}/worker
 
       - name: Push Worker
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v4
         with:
           context: ./worker
           push: true
