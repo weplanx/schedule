@@ -47,7 +47,7 @@ jobs:
       # Excel
       - name: Get Excel Metadata
         id: excel
-        uses: docker/metadata-action@v3
+        uses: docker/metadata-action@v4
         with:
           images: ${{ env.REGISTRY }}/excel
 
@@ -70,7 +70,7 @@ jobs:
       # Schedule
       - name: Get Schedule Metadata
         id: schedule
-        uses: docker/metadata-action@v3
+        uses: docker/metadata-action@v4
         with:
           images: ${{ env.REGISTRY }}/schedule
 
@@ -93,7 +93,7 @@ jobs:
       # Worker
       - name: Get Worker Metadata
         id: worker
-        uses: docker/metadata-action@v3
+        uses: docker/metadata-action@v4
         with:
           images: ${{ env.REGISTRY }}/worker
 
