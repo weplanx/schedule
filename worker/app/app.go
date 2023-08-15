@@ -37,7 +37,9 @@ func (x *App) Run(ctx context.Context) (err error) {
 	queue := fmt.Sprintf(`%s:worker`, x.V.Namespace)
 	if _, err = x.Nats.QueueSubscribe(subj, queue, func(msg *nats.Msg) {
 		var job typ.Job
-		msgpack.Unmarshal(msg.Data, &job)
+		if err = msgpack.Unmarshal(msg.Data, &job); err != nil {
+			return
+		}
 		switch job.Mode {
 		case "HTTP":
 			x.HTTPMode(job)
