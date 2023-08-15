@@ -1,0 +1,114 @@
+name: Release Container
+
+on:
+  release:
+    types: [ published ]
+
+env:
+  REGISTRY: ghcr.io
+  TCR_REGISTRY: ccr.ccs.tencentyun.com
+
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-go@v2
+        with:
+          go-version: ~1.21
+      - run: |
+          go mod tidy
+          go build -o dist/excel ./excel
+          go build -o dist/schedule ./schedule
+          go build -o dist/worker ./worker
+        env:
+          CGO_ENABLED: 0
+          GO111MODULE: on
+          GOARCH: amd64
+          GOOS: linux
+
+      - name: Login GitHub Container Hub
+        uses: docker/login-action@v1
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Login TCR
+        uses: docker/login-action@v1
+        with:
+          registry: ${{ env.TCR_REGISTRY }}
+          username: ${{ secrets.TCR_USERNAME }}
+          password: ${{ secrets.TCR_PASSWORD }}
+
+      # Excel
+      - name: Get Excel Metadata
+        id: excel
+        uses: docker/metadata-action@v3
+        with:
+          images: ${{ env.REGISTRY }}/excel
+
+      - name: Push Excel
+        uses: docker/build-push-action@v2
+        with:
+          context: ./excel
+          push: true
+          tags: ${{ steps.excel.outputs.tags }}
+          labels: ${{ steps.excel.outputs.labels }}
+
+      - name: Copy Excel to QCLOUD TCR
+        uses: akhilerm/tag-push-action@v2.0.0
+        with:
+          src: ${{ env.REGISTRY }}/excel:${{steps.excel.outputs.version}}
+          dst: |
+            ${{ env.TCR_REGISTRY }}/excel:latest
+            ${{ env.TCR_REGISTRY }}/excel:${{steps.excel.outputs.version}}
+
+      # Schedule
+      - name: Get Schedule Metadata
+        id: schedule
+        uses: docker/metadata-action@v3
+        with:
+          images: ${{ env.REGISTRY }}/schedule
+
+      - name: Push Schedule
+        uses: docker/build-push-action@v2
+        with:
+          context: ./schedule
+          push: true
+          tags: ${{ steps.schedule.outputs.tags }}
+          labels: ${{ steps.schedule.outputs.labels }}
+
+      - name: Copy Schedule to QCLOUD TCR
+        uses: akhilerm/tag-push-action@v2.0.0
+        with:
+          src: ${{ env.REGISTRY }}/schedule:${{steps.schedule.outputs.version}}
+          dst: |
+            ${{ env.TCR_REGISTRY }}/schedule:latest
+            ${{ env.TCR_REGISTRY }}/schedule:${{steps.schedule.outputs.version}}
+
+      # Worker
+      - name: Get Worker Metadata
+        id: worker
+        uses: docker/metadata-action@v3
+        with:
+          images: ${{ env.REGISTRY }}/worker
+
+      - name: Push Worker
+        uses: docker/build-push-action@v2
+        with:
+          context: ./worker
+          push: true
+          tags: ${{ steps.worker.outputs.tags }}
+          labels: ${{ steps.worker.outputs.labels }}
+
+      - name: Copy Worker to QCLOUD TCR
+        uses: akhilerm/tag-push-action@v2.0.0
+        with:
+          src: ${{ env.REGISTRY }}/worker:${{steps.worker.outputs.version}}
+          dst: |
+            ${{ env.TCR_REGISTRY }}/worker:latest
+            ${{ env.TCR_REGISTRY }}/worker:${{steps.worker.outputs.version}}
