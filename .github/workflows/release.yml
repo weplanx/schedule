@@ -13,6 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       packages: write
+      contents: read
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-go@v2
@@ -48,7 +49,7 @@ jobs:
         id: excel
         uses: docker/metadata-action@v4
         with:
-          images: ${{ env.REGISTRY }}/excel
+          images: ${{ env.REGISTRY }}/weplanx/excel
 
       - name: Push Excel
         uses: docker/build-push-action@v4
@@ -61,17 +62,17 @@ jobs:
       - name: Copy Excel to QCLOUD TCR
         uses: akhilerm/tag-push-action@v2.0.0
         with:
-          src: ${{ env.REGISTRY }}/excel:${{steps.excel.outputs.version}}
+          src: ${{ env.REGISTRY }}/weplanx/excel:${{steps.excel.outputs.version}}
           dst: |
-            ${{ env.TCR_REGISTRY }}/excel:latest
-            ${{ env.TCR_REGISTRY }}/excel:${{steps.excel.outputs.version}}
+            ${{ env.TCR_REGISTRY }}/weplanx/excel:latest
+            ${{ env.TCR_REGISTRY }}/weplanx/excel:${{steps.excel.outputs.version}}
 
       # Schedule
       - name: Get Schedule Metadata
         id: schedule
         uses: docker/metadata-action@v4
         with:
-          images: ${{ env.REGISTRY }}/schedule
+          images: ${{ env.REGISTRY }}/weplanx/schedule
 
       - name: Push Schedule
         uses: docker/build-push-action@v4
@@ -84,17 +85,17 @@ jobs:
       - name: Copy Schedule to QCLOUD TCR
         uses: akhilerm/tag-push-action@v2.0.0
         with:
-          src: ${{ env.REGISTRY }}/schedule:${{steps.schedule.outputs.version}}
+          src: ${{ env.REGISTRY }}/weplanx/schedule:${{steps.schedule.outputs.version}}
           dst: |
-            ${{ env.TCR_REGISTRY }}/schedule:latest
-            ${{ env.TCR_REGISTRY }}/schedule:${{steps.schedule.outputs.version}}
+            ${{ env.TCR_REGISTRY }}/weplanx/schedule:latest
+            ${{ env.TCR_REGISTRY }}/weplanx/schedule:${{steps.schedule.outputs.version}}
 
       # Worker
       - name: Get Worker Metadata
         id: worker
         uses: docker/metadata-action@v4
         with:
-          images: ${{ env.REGISTRY }}/worker
+          images: ${{ env.REGISTRY }}/weplanx/worker
 
       - name: Push Worker
         uses: docker/build-push-action@v4
@@ -107,7 +108,7 @@ jobs:
       - name: Copy Worker to QCLOUD TCR
         uses: akhilerm/tag-push-action@v2.0.0
         with:
-          src: ${{ env.REGISTRY }}/worker:${{steps.worker.outputs.version}}
+          src: ${{ env.REGISTRY }}/weplanx/worker:${{steps.worker.outputs.version}}
           dst: |
-            ${{ env.TCR_REGISTRY }}/worker:latest
-            ${{ env.TCR_REGISTRY }}/worker:${{steps.worker.outputs.version}}
+            ${{ env.TCR_REGISTRY }}/weplanx/worker:latest
+            ${{ env.TCR_REGISTRY }}/weplanx/worker:${{steps.worker.outputs.version}}
