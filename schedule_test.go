@@ -22,8 +22,14 @@ func TestSchedule_Set(t *testing.T) {
 	assert.NoError(t, err)
 }
 
-func TestSchedule_List(t *testing.T) {
-	keys, err := schedule.List()
+func TestSchedule_Ping(t *testing.T) {
+	r, err := schedule.Ping()
+	assert.NoError(t, err)
+	t.Log(r)
+}
+
+func TestSchedule_Lists(t *testing.T) {
+	keys, err := schedule.Lists()
 	assert.NoError(t, err)
 	t.Log(keys)
 }

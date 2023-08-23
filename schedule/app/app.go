@@ -94,7 +94,7 @@ func (x *App) Run() (err error) {
 	if err = x.State(); err != nil {
 		return
 	}
-	return
+	return x.Ping()
 }
 
 func (x *App) Get(key string) (*cron.Cron, bool) {
@@ -185,5 +185,17 @@ func (x *App) State() (err error) {
 	x.Log.Debug("State:ok",
 		zap.String("subj", subj),
 	)
+	return
+}
+
+func (x *App) Ping() (err error) {
+	subj := fmt.Sprintf(`%s.schedules`, x.V.Namespace)
+	if _, err = x.Nats.Subscribe(subj, func(msg *nats.Msg) {
+		if string(msg.Data) == x.V.Id {
+			msg.Respond([]byte("ok"))
+		}
+	}); err != nil {
+		return
+	}
 	return
 }

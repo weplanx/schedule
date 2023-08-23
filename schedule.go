@@ -1,6 +1,7 @@
 package workflow
 
 import (
+	"errors"
 	"fmt"
 	"github.com/nats-io/nats.go"
 	"github.com/vmihailenco/msgpack/v5"
@@ -29,8 +30,24 @@ func (x *Workflow) NewSchedule(id string) (schedule *Schedule, err error) {
 	return
 }
 
-func (x *Schedule) List() (keys []string, err error) {
-	return x.KeyValue.Keys()
+func (x *Schedule) Ping() (result bool, err error) {
+	subj := fmt.Sprintf(`%s.schedules`, x.Namespace)
+	var msg *nats.Msg
+	if msg, err = x.Nats.Request(subj, []byte(x.Id), time.Second*5); err != nil {
+		return
+	}
+	result = string(msg.Data) == "ok"
+	return
+}
+
+func (x *Schedule) Lists() (keys []string, err error) {
+	if keys, err = x.KeyValue.Keys(); err != nil {
+		if errors.Is(err, nats.ErrNoKeysFound) {
+			return []string{}, nil
+		}
+		return
+	}
+	return
 }
 
 func (x *Schedule) Get(key string) (option typ.ScheduleOption, err error) {
