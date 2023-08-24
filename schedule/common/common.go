@@ -14,7 +14,7 @@ type Inject struct {
 
 type Values struct {
 	Namespace string `env:"NAMESPACE,required"`
-	Id        string `env:"ID,required"`
+	Node      string `env:"NODE,required"`
 	Nats      struct {
 		Hosts []string `env:"HOSTS,required" envSeparator:","`
 		Nkey  string   `env:"NKEY,required"`

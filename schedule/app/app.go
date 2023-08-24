@@ -3,7 +3,6 @@ package app
 import (
 	"errors"
 	"fmt"
-	"github.com/google/uuid"
 	"github.com/nats-io/nats.go"
 	"github.com/robfig/cron/v3"
 	"github.com/vmihailenco/msgpack/v5"
@@ -16,14 +15,12 @@ import (
 
 type App struct {
 	*common.Inject
-	Node string
-	M    sync.Map
+	M sync.Map
 }
 
 func Initialize(i *common.Inject) *App {
 	return &App{
 		Inject: i,
-		Node:   uuid.New().String(),
 		M:      sync.Map{},
 	}
 }
@@ -119,7 +116,7 @@ func (x *App) Set(key string, option typ.ScheduleOption) (err error) {
 
 func (x *App) SetJob(key string, c *cron.Cron, index int, job typ.ScheduleJob) (err error) {
 	if _, err = c.AddFunc(job.Spec, func() {
-		subj := fmt.Sprintf(`%s.jobs.%s`, x.V.Namespace, x.V.Id)
+		subj := fmt.Sprintf(`%s.jobs.%s`, x.V.Namespace, x.V.Node)
 		var b []byte
 		if b, err = msgpack.Marshal(typ.Job{
 			Key:    key,
@@ -163,8 +160,8 @@ func (x *App) GetState(key string) []cron.Entry {
 }
 
 func (x *App) State() (err error) {
-	subj := fmt.Sprintf(`%s.schedules.%s`, x.V.Namespace, x.V.Id)
-	queue := fmt.Sprintf(`%s:schedules:%s`, x.V.Namespace, x.V.Id)
+	subj := fmt.Sprintf(`%s.schedules.%s`, x.V.Namespace, x.V.Node)
+	queue := fmt.Sprintf(`%s:schedules:%s`, x.V.Namespace, x.V.Node)
 	if _, err = x.Nats.QueueSubscribe(subj, queue, func(msg *nats.Msg) {
 		key := string(msg.Data)
 		var states []typ.ScheduleState
@@ -191,7 +188,7 @@ func (x *App) State() (err error) {
 func (x *App) Ping() (err error) {
 	subj := fmt.Sprintf(`%s.schedules`, x.V.Namespace)
 	if _, err = x.Nats.Subscribe(subj, func(msg *nats.Msg) {
-		if string(msg.Data) == x.V.Id {
+		if string(msg.Data) == x.V.Node {
 			msg.Respond([]byte("ok"))
 		}
 	}); err != nil {

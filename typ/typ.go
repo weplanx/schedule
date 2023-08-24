@@ -10,26 +10,26 @@ type Job struct {
 }
 
 type HttpOption struct {
-	Url     string                 `msgpack:"url"`
-	Headers map[string]string      `msgpack:"headers"`
-	Body    map[string]interface{} `msgpack:"body"`
+	Url     string                 `json:"url" msgpack:"url"`
+	Headers map[string]string      `json:"headers" msgpack:"headers"`
+	Body    map[string]interface{} `json:"body" msgpack:"body"`
 }
 
 type ScheduleOption struct {
-	Status bool          `msgpack:"status"`
-	Jobs   []ScheduleJob `msgpack:"jobs"`
+	Status bool          `json:"status" msgpack:"status" `
+	Jobs   []ScheduleJob `json:"jobs" msgpack:"jobs" `
 }
 
 type ScheduleJob struct {
-	Mode          string      `msgpack:"mode"`
-	Spec          string      `msgpack:"spec"`
-	Option        interface{} `msgpack:"option"`
-	ScheduleState `msgpack:"state"`
+	Mode          string      `json:"mode" msgpack:"mode"`
+	Spec          string      `json:"spec" msgpack:"spec"`
+	Option        interface{} `json:"option" msgpack:"option"`
+	ScheduleState `json:"schedule_state" msgpack:"state"`
 }
 
 type ScheduleState struct {
-	Next time.Time `msgpack:"next"`
-	Prev time.Time `msgpack:"prev"`
+	Next time.Time `json:"next" msgpack:"next"`
+	Prev time.Time `json:"prev" msgpack:"prev"`
 }
 
 type ScheduleStatus struct {

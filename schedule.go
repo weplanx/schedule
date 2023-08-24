@@ -11,19 +11,19 @@ import (
 
 type Schedule struct {
 	Namespace string
-	Id        string
+	Node      string
 	Nats      *nats.Conn
 	KeyValue  nats.KeyValue
 }
 
-func (x *Workflow) NewSchedule(id string) (schedule *Schedule, err error) {
+func (x *Workflow) NewSchedule(node string) (schedule *Schedule, err error) {
 	schedule = &Schedule{
 		Namespace: x.Namespace,
-		Id:        id,
+		Node:      node,
 		Nats:      x.Nats,
 		KeyValue:  nil,
 	}
-	bucket := fmt.Sprintf(`%s_schedules_%s`, x.Namespace, id)
+	bucket := fmt.Sprintf(`%s_schedules_%s`, x.Namespace, node)
 	if schedule.KeyValue, err = x.JetStream.KeyValue(bucket); err != nil {
 		return
 	}
@@ -33,7 +33,7 @@ func (x *Workflow) NewSchedule(id string) (schedule *Schedule, err error) {
 func (x *Schedule) Ping() (result bool, err error) {
 	subj := fmt.Sprintf(`%s.schedules`, x.Namespace)
 	var msg *nats.Msg
-	if msg, err = x.Nats.Request(subj, []byte(x.Id), time.Second*5); err != nil {
+	if msg, err = x.Nats.Request(subj, []byte(x.Node), time.Second*5); err != nil {
 		return
 	}
 	result = string(msg.Data) == "ok"
@@ -59,7 +59,7 @@ func (x *Schedule) Get(key string) (option typ.ScheduleOption, err error) {
 		return
 	}
 	var msg *nats.Msg
-	subj := fmt.Sprintf(`%s.schedules.%s`, x.Namespace, x.Id)
+	subj := fmt.Sprintf(`%s.schedules.%s`, x.Namespace, x.Node)
 	if msg, err = x.Nats.Request(subj, []byte(key), time.Second*3); err != nil {
 		return
 	}
