@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/bytedance/sonic"
-	"github.com/go-resty/resty/v2"
+	"github.com/imroc/req/v3"
 	"github.com/mitchellh/mapstructure"
 	"github.com/nats-io/nats.go"
 	"github.com/vmihailenco/msgpack/v5"
@@ -51,10 +51,12 @@ func (x *App) Run(ctx context.Context) (err error) {
 	return
 }
 
+var httpClient = req.C().
+	SetTimeout(time.Second * 5).
+	SetJsonMarshal(sonic.Marshal).
+	SetJsonUnmarshal(sonic.Unmarshal)
+
 func (x *App) HTTPMode(job typ.Job) (err error) {
-	httpClient := resty.New()
-	httpClient.JSONMarshal = sonic.Marshal
-	httpClient.JSONUnmarshal = sonic.Unmarshal
 	var option typ.HttpOption
 	if err = mapstructure.Decode(job.Option, &option); err != nil {
 		x.Log.Error("HttpOption:fail",
@@ -65,11 +67,16 @@ func (x *App) HTTPMode(job typ.Job) (err error) {
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
+
+	var result M
 	resp, err := httpClient.R().
 		SetContext(ctx).
 		SetHeaders(option.Headers).
 		SetBody(option.Body).
+		SetSuccessResult(&result).
+		SetErrorResult(&result).
 		Post(option.Url)
+
 	now := time.Now()
 	x.Transfer.Publish(ctx, "logset_jobs", transfer.Payload{
 		Timestamp: now,
@@ -83,8 +90,8 @@ func (x *App) HTTPMode(job typ.Job) (err error) {
 			"headers": option.Headers,
 			"body":    option.Body,
 			"response": M{
-				"status": resp.StatusCode(),
-				"body":   resp.Result(),
+				"status": resp.StatusCode,
+				"body":   result,
 			},
 		},
 		XData: M{},
@@ -105,8 +112,8 @@ func (x *App) HTTPMode(job typ.Job) (err error) {
 		zap.Any("headers", option.Headers),
 		zap.Any("body", option.Body),
 		zap.Any("response", M{
-			"status": resp.StatusCode(),
-			"body":   resp,
+			"status": resp.StatusCode,
+			"body":   result,
 		}),
 	)
 	return
