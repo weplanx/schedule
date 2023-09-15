@@ -5,8 +5,7 @@ import (
 	"github.com/caarlos0/env/v9"
 	"github.com/nats-io/nats.go"
 	"github.com/nats-io/nkeys"
-	"github.com/weplanx/collector/transfer"
-	"github.com/weplanx/workflow/worker/common"
+	"github.com/weplanx/schedule/common"
 	"go.uber.org/zap"
 	"os"
 	"strings"
@@ -62,9 +61,8 @@ func UseJetStream(nc *nats.Conn) (nats.JetStreamContext, error) {
 	return nc.JetStream(nats.PublishAsyncMaxPending(256))
 }
 
-func UseTransfer(v *common.Values, js nats.JetStreamContext) (*transfer.Transfer, error) {
-	return transfer.New(
-		transfer.SetNamespace(v.Namespace),
-		transfer.SetJetStream(js),
-	)
+func UseKeyValue(values *common.Values, js nats.JetStreamContext) (nats.KeyValue, error) {
+	return js.CreateKeyValue(&nats.KeyValueConfig{
+		Bucket: fmt.Sprintf(`%s_schedules_%s`, values.Namespace, values.Node),
+	})
 }

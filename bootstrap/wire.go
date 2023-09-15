@@ -5,8 +5,8 @@ package bootstrap
 
 import (
 	"github.com/google/wire"
-	"github.com/weplanx/workflow/schedule/app"
-	"github.com/weplanx/workflow/schedule/common"
+	"github.com/weplanx/schedule/app"
+	"github.com/weplanx/schedule/common"
 )
 
 func NewApp() (*app.App, error) {

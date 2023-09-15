@@ -1,6 +1,26 @@
-package typ
+package common
 
-import "time"
+import (
+	"github.com/nats-io/nats.go"
+	"go.uber.org/zap"
+	"time"
+)
+
+type Inject struct {
+	V        *Values
+	Log      *zap.Logger
+	Nats     *nats.Conn
+	KeyValue nats.KeyValue
+}
+
+type Values struct {
+	Namespace string `env:"NAMESPACE,required"`
+	Node      string `env:"NODE,required"`
+	Nats      struct {
+		Hosts []string `env:"HOSTS,required" envSeparator:","`
+		Nkey  string   `env:"NKEY,required"`
+	} `envPrefix:"NATS_"`
+}
 
 type Job struct {
 	Key    string      `msgpack:"key"`
@@ -36,9 +56,3 @@ type ScheduleStatus struct {
 	Key   string `msgpack:"key"`
 	Value bool   `msgpack:"value"`
 }
-
-type ExcelMetadata struct {
-	Name  string   `msgpack:"name"`
-	Parts []string `msgpack:"parts"`
-}
-type ExcelSheets map[string][][]interface{}

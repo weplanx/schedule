@@ -7,8 +7,8 @@
 package bootstrap
 
 import (
-	"github.com/weplanx/workflow/schedule/app"
-	"github.com/weplanx/workflow/schedule/common"
+	"github.com/weplanx/schedule/app"
+	"github.com/weplanx/schedule/common"
 )
 
 // Injectors from wire.go:

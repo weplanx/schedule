@@ -1,11 +1,9 @@
 package main
 
 import (
-	"context"
-	"github.com/weplanx/workflow/worker/bootstrap"
+	"github.com/weplanx/schedule/bootstrap"
 	"os"
 	"os/signal"
-	"time"
 )
 
 func main() {
@@ -13,10 +11,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
-	defer cancel()
-	if err = app.Run(ctx); err != nil {
+	if err = app.Run(); err != nil {
 		panic(err)
 	}
 

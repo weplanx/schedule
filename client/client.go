@@ -1,36 +1,61 @@
-package workflow
+package client
 
 import (
 	"errors"
 	"fmt"
 	"github.com/nats-io/nats.go"
 	"github.com/vmihailenco/msgpack/v5"
-	"github.com/weplanx/workflow/typ"
+	"github.com/weplanx/schedule/common"
 	"time"
 )
 
-type Schedule struct {
+type Client struct {
 	Namespace string
 	Node      string
 	Nats      *nats.Conn
+	JetStream nats.JetStreamContext
 	KeyValue  nats.KeyValue
 }
 
-func (x *Workflow) NewSchedule(node string) (schedule *Schedule, err error) {
-	schedule = &Schedule{
-		Namespace: x.Namespace,
-		Node:      node,
-		Nats:      x.Nats,
-		KeyValue:  nil,
+type Option func(x *Client)
+
+func SetNamespace(v string) Option {
+	return func(x *Client) {
+		x.Namespace = v
 	}
-	bucket := fmt.Sprintf(`%s_schedules_%s`, x.Namespace, node)
-	if schedule.KeyValue, err = x.JetStream.KeyValue(bucket); err != nil {
+}
+
+func SetNode(v string) Option {
+	return func(x *Client) {
+		x.Node = v
+	}
+}
+
+func SetNats(v *nats.Conn) Option {
+	return func(x *Client) {
+		x.Nats = v
+	}
+}
+
+func SetJetStream(v nats.JetStreamContext) Option {
+	return func(x *Client) {
+		x.JetStream = v
+	}
+}
+
+func New(options ...Option) (x *Client, err error) {
+	x = new(Client)
+	for _, apply := range options {
+		apply(x)
+	}
+	bucket := fmt.Sprintf(`%s_schedules_%s`, x.Namespace, x.Node)
+	if x.KeyValue, err = x.JetStream.KeyValue(bucket); err != nil {
 		return
 	}
 	return
 }
 
-func (x *Schedule) Ping() (result bool, err error) {
+func (x *Client) Ping() (result bool, err error) {
 	subj := fmt.Sprintf(`%s.schedules`, x.Namespace)
 	var msg *nats.Msg
 	if msg, err = x.Nats.Request(subj, []byte(x.Node), time.Second*5); err != nil {
@@ -40,7 +65,7 @@ func (x *Schedule) Ping() (result bool, err error) {
 	return
 }
 
-func (x *Schedule) Lists() (keys []string, err error) {
+func (x *Client) Lists() (keys []string, err error) {
 	if keys, err = x.KeyValue.Keys(); err != nil {
 		if errors.Is(err, nats.ErrNoKeysFound) {
 			return []string{}, nil
@@ -50,7 +75,7 @@ func (x *Schedule) Lists() (keys []string, err error) {
 	return
 }
 
-func (x *Schedule) Get(key string) (option typ.ScheduleOption, err error) {
+func (x *Client) Get(key string) (option common.ScheduleOption, err error) {
 	var entry nats.KeyValueEntry
 	if entry, err = x.KeyValue.Get(key); err != nil {
 		return
@@ -63,7 +88,7 @@ func (x *Schedule) Get(key string) (option typ.ScheduleOption, err error) {
 	if msg, err = x.Nats.Request(subj, []byte(key), time.Second*3); err != nil {
 		return
 	}
-	var states []typ.ScheduleState
+	var states []common.ScheduleState
 	if err = msgpack.Unmarshal(msg.Data, &states); err != nil {
 		return
 	}
@@ -73,7 +98,7 @@ func (x *Schedule) Get(key string) (option typ.ScheduleOption, err error) {
 	return
 }
 
-func (x *Schedule) Set(key string, option typ.ScheduleOption) (err error) {
+func (x *Client) Set(key string, option common.ScheduleOption) (err error) {
 	var b []byte
 	if b, err = msgpack.Marshal(option); err != nil {
 		return
@@ -84,12 +109,12 @@ func (x *Schedule) Set(key string, option typ.ScheduleOption) (err error) {
 	return
 }
 
-func (x *Schedule) Status(key string, value bool) (err error) {
+func (x *Client) Status(key string, value bool) (err error) {
 	var entry nats.KeyValueEntry
 	if entry, err = x.KeyValue.Get(key); err != nil {
 		return
 	}
-	var option typ.ScheduleOption
+	var option common.ScheduleOption
 	if err = msgpack.Unmarshal(entry.Value(), &option); err != nil {
 		return
 	}
@@ -97,6 +122,6 @@ func (x *Schedule) Status(key string, value bool) (err error) {
 	return x.Set(key, option)
 }
 
-func (x *Schedule) Remove(key string) (err error) {
+func (x *Client) Remove(key string) (err error) {
 	return x.KeyValue.Delete(key)
 }

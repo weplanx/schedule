@@ -6,8 +6,7 @@ import (
 	"github.com/nats-io/nats.go"
 	"github.com/robfig/cron/v3"
 	"github.com/vmihailenco/msgpack/v5"
-	"github.com/weplanx/workflow/schedule/common"
-	"github.com/weplanx/workflow/typ"
+	"github.com/weplanx/schedule/common"
 	"go.uber.org/zap"
 	"sync"
 	"time"
@@ -39,7 +38,7 @@ func (x *App) Run() (err error) {
 		if entry, err = x.KeyValue.Get(key); err != nil {
 			return
 		}
-		var option typ.ScheduleOption
+		var option common.ScheduleOption
 		if err = msgpack.Unmarshal(entry.Value(), &option); err != nil {
 			return
 		}
@@ -61,7 +60,7 @@ func (x *App) Run() (err error) {
 			key := update.Key()
 			switch update.Operation().String() {
 			case "KeyValuePutOp":
-				var option typ.ScheduleOption
+				var option common.ScheduleOption
 				if err = msgpack.Unmarshal(update.Value(), &option); err != nil {
 					return
 				}
@@ -91,7 +90,11 @@ func (x *App) Run() (err error) {
 	if err = x.State(); err != nil {
 		return
 	}
-	return x.Ping()
+	if err = x.Ping(); err != nil {
+		return
+	}
+	x.Log.Info("Service started!")
+	return
 }
 
 func (x *App) Get(key string) (*cron.Cron, bool) {
@@ -99,7 +102,7 @@ func (x *App) Get(key string) (*cron.Cron, bool) {
 	return v.(*cron.Cron), ok
 }
 
-func (x *App) Set(key string, option typ.ScheduleOption) (err error) {
+func (x *App) Set(key string, option common.ScheduleOption) (err error) {
 	x.Remove(key)
 	c := cron.New(cron.WithSeconds())
 	for i, job := range option.Jobs {
@@ -114,11 +117,11 @@ func (x *App) Set(key string, option typ.ScheduleOption) (err error) {
 	return
 }
 
-func (x *App) SetJob(key string, c *cron.Cron, index int, job typ.ScheduleJob) (err error) {
+func (x *App) SetJob(key string, c *cron.Cron, index int, job common.ScheduleJob) (err error) {
 	if _, err = c.AddFunc(job.Spec, func() {
 		subj := fmt.Sprintf(`%s.jobs.%s`, x.V.Namespace, x.V.Node)
 		var b []byte
-		if b, err = msgpack.Marshal(typ.Job{
+		if b, err = msgpack.Marshal(common.Job{
 			Key:    key,
 			Index:  index,
 			Mode:   job.Mode,
@@ -164,9 +167,9 @@ func (x *App) State() (err error) {
 	queue := fmt.Sprintf(`%s:schedules:%s`, x.V.Namespace, x.V.Node)
 	if _, err = x.Nats.QueueSubscribe(subj, queue, func(msg *nats.Msg) {
 		key := string(msg.Data)
-		var states []typ.ScheduleState
+		var states []common.ScheduleState
 		for _, entry := range x.GetState(key) {
-			states = append(states, typ.ScheduleState{
+			states = append(states, common.ScheduleState{
 				Next: entry.Next,
 				Prev: entry.Prev,
 			})
