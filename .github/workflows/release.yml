@@ -21,9 +21,9 @@ jobs:
         with:
           go-version: ~1.21
       - run: |
-          go build ./excel
-          go build ./schedule
-          go build ./worker
+          go build -o excel/main ./excel
+          go build -o schedule/main ./schedule
+          go build -o schedule/main ./worker
         env:
           CGO_ENABLED: 0
           GO111MODULE: on

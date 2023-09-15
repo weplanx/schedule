@@ -4,6 +4,6 @@ WORKDIR /app
 
 RUN apk --no-cache add tzdata
 
-ADD schedule /app/
+ADD schedule/main /app/
 
-CMD [ "./schedule" ]
+CMD [ "./main" ]

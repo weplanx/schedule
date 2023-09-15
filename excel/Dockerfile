@@ -4,8 +4,8 @@ WORKDIR /app
 
 RUN apk --no-cache add tzdata
 
-ADD excel /app/
+ADD excel/main /app/
 
 EXPOSE 9000
 
-CMD [ "./excel" ]
+CMD [ "./main" ]
