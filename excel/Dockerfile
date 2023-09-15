@@ -1,10 +1,11 @@
 FROM alpine:edge
 
-RUN apk add tzdata
-
-COPY main /app/main
 WORKDIR /app
+
+RUN apk --no-cache add tzdata
+
+ADD excel /app/
 
 EXPOSE 9000
 
-CMD [ "./main" ]
+CMD [ "./excel" ]
