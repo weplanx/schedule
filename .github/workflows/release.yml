@@ -23,7 +23,7 @@ jobs:
       - run: |
           go build -o excel/main ./excel
           go build -o schedule/main ./schedule
-          go build -o schedule/main ./worker
+          go build -o worker/main ./worker
         env:
           CGO_ENABLED: 0
           GO111MODULE: on

@@ -4,6 +4,6 @@ WORKDIR /app
 
 RUN apk --no-cache add tzdata
 
-ADD worker/main /app/
+ADD main /app/
 
 CMD [ "./main" ]

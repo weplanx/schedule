@@ -4,7 +4,7 @@ WORKDIR /app
 
 RUN apk --no-cache add tzdata
 
-ADD excel/main /app/
+ADD main /app/
 
 EXPOSE 9000
 
