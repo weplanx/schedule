@@ -69,7 +69,7 @@ func TestSchedule_Set(t *testing.T) {
 		Jobs: []common.ScheduleJob{
 			{
 				Mode: "HTTP",
-				Spec: "*/2 * * * * *",
+				Spec: "*/5 * * * * *",
 				Option: common.HttpOption{
 					Url: "https://api.kainonly.com/whoami",
 				},
