@@ -29,6 +29,7 @@ type Job struct {
 }
 
 type HttpOption struct {
+	Method  string                 `json:"method" msgpack:"method"`
 	Url     string                 `json:"url" msgpack:"url"`
 	Headers map[string]string      `json:"headers" msgpack:"headers"`
 	Body    map[string]interface{} `json:"body" msgpack:"body"`

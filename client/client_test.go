@@ -1,7 +1,6 @@
 package client_test
 
 import (
-	"fmt"
 	"github.com/nats-io/nats.go"
 	"github.com/nats-io/nkeys"
 	"github.com/stretchr/testify/assert"
@@ -15,7 +14,7 @@ var x *client.Client
 
 func TestMain(m *testing.M) {
 	node := os.Getenv("NODE")
-	nc, err := UseNats(node)
+	nc, err := UseNats()
 	if err != nil {
 		panic(err)
 	}
@@ -25,7 +24,7 @@ func TestMain(m *testing.M) {
 	os.Exit(m.Run())
 }
 
-func UseNats(node string) (nc *nats.Conn, err error) {
+func UseNats() (nc *nats.Conn, err error) {
 	var auth nats.Option
 	var kp nkeys.KeyPair
 	if kp, err = nkeys.FromSeed([]byte(os.Getenv("NATS_NKEY"))); err != nil {
@@ -49,27 +48,19 @@ func UseNats(node string) (nc *nats.Conn, err error) {
 	); err != nil {
 		return
 	}
-	var js nats.JetStreamContext
-	if js, err = nc.JetStream(
-		nats.PublishAsyncMaxPending(256),
-	); err != nil {
-		return
-	}
-	if _, err = js.CreateKeyValue(&nats.KeyValueConfig{Bucket: fmt.Sprintf(`schedules_%s`, node)}); err != nil {
-		return
-	}
 	return
 }
 
 func TestSchedule_Set(t *testing.T) {
-	err := x.Set("api", common.ScheduleOption{
+	err := x.Set("dogs", common.ScheduleOption{
 		Status: false,
 		Jobs: []common.ScheduleJob{
 			{
 				Mode: "HTTP",
 				Spec: "*/5 * * * * *",
 				Option: common.HttpOption{
-					Url: "https://api.kainonly.com/whoami",
+					Method: "GET",
+					Url:    "https://dog.ceo/api/breeds/image/random",
 				},
 			},
 		},
@@ -90,22 +81,22 @@ func TestSchedule_Lists(t *testing.T) {
 }
 
 func TestSchedule_Get(t *testing.T) {
-	jobs, err := x.Get("api")
+	jobs, err := x.Get("dogs")
 	assert.NoError(t, err)
 	t.Log(jobs)
 }
 
 func TestSchedule_StatusStart(t *testing.T) {
-	err := x.Status("api", true)
+	err := x.Status("dogs", true)
 	assert.NoError(t, err)
 }
 
 func TestSchedule_StatusStop(t *testing.T) {
-	err := x.Status("api", false)
+	err := x.Status("dogs", false)
 	assert.NoError(t, err)
 }
 
 func TestSchedule_Remove(t *testing.T) {
-	err := x.Remove("api")
+	err := x.Remove("dogs")
 	assert.NoError(t, err)
 }
