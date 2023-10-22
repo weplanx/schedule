@@ -10,45 +10,20 @@ import (
 )
 
 type Client struct {
-	Namespace string
 	Node      string
 	Nats      *nats.Conn
 	JetStream nats.JetStreamContext
 	KeyValue  nats.KeyValue
 }
 
-type Option func(x *Client)
-
-func SetNamespace(v string) Option {
-	return func(x *Client) {
-		x.Namespace = v
+func New(node string, nc *nats.Conn) (x *Client, err error) {
+	x = &Client{Node: node, Nats: nc}
+	if x.JetStream, err = nc.JetStream(
+		nats.PublishAsyncMaxPending(256),
+	); err != nil {
+		return
 	}
-}
-
-func SetNode(v string) Option {
-	return func(x *Client) {
-		x.Node = v
-	}
-}
-
-func SetNats(v *nats.Conn) Option {
-	return func(x *Client) {
-		x.Nats = v
-	}
-}
-
-func SetJetStream(v nats.JetStreamContext) Option {
-	return func(x *Client) {
-		x.JetStream = v
-	}
-}
-
-func New(options ...Option) (x *Client, err error) {
-	x = new(Client)
-	for _, apply := range options {
-		apply(x)
-	}
-	bucket := fmt.Sprintf(`%s_schedules_%s`, x.Namespace, x.Node)
+	bucket := fmt.Sprintf(`schedules_%s`, x.Node)
 	if x.KeyValue, err = x.JetStream.KeyValue(bucket); err != nil {
 		return
 	}
@@ -56,9 +31,8 @@ func New(options ...Option) (x *Client, err error) {
 }
 
 func (x *Client) Ping() (result bool, err error) {
-	subj := fmt.Sprintf(`%s.schedules`, x.Namespace)
 	var msg *nats.Msg
-	if msg, err = x.Nats.Request(subj, []byte(x.Node), time.Second*5); err != nil {
+	if msg, err = x.Nats.Request("schedules", []byte(x.Node), time.Second*5); err != nil {
 		return
 	}
 	result = string(msg.Data) == "ok"
@@ -84,7 +58,7 @@ func (x *Client) Get(key string) (option common.ScheduleOption, err error) {
 		return
 	}
 	var msg *nats.Msg
-	subj := fmt.Sprintf(`%s.schedules.%s`, x.Namespace, x.Node)
+	subj := fmt.Sprintf(`schedules.%s`, x.Node)
 	if msg, err = x.Nats.Request(subj, []byte(key), time.Second*3); err != nil {
 		return
 	}

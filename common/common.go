@@ -14,9 +14,8 @@ type Inject struct {
 }
 
 type Values struct {
-	Namespace string `env:"NAMESPACE,required"`
-	Node      string `env:"NODE,required"`
-	Nats      struct {
+	Node string `env:"NODE,required"`
+	Nats struct {
 		Hosts []string `env:"HOSTS,required" envSeparator:","`
 		Nkey  string   `env:"NKEY,required"`
 	} `envPrefix:"NATS_"`

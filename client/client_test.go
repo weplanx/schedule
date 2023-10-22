@@ -1,7 +1,7 @@
 package client_test
 
 import (
-	"context"
+	"fmt"
 	"github.com/nats-io/nats.go"
 	"github.com/nats-io/nkeys"
 	"github.com/stretchr/testify/assert"
@@ -14,23 +14,18 @@ import (
 var x *client.Client
 
 func TestMain(m *testing.M) {
-	ctx := context.TODO()
-	nc, js, err := UseNats(ctx)
+	node := os.Getenv("NODE")
+	nc, err := UseNats(node)
 	if err != nil {
 		panic(err)
 	}
-	if x, err = client.New(
-		client.SetNamespace("example"),
-		client.SetNats(nc),
-		client.SetJetStream(js),
-		client.SetNode(os.Getenv("NODE")),
-	); err != nil {
+	if x, err = client.New(node, nc); err != nil {
 		panic(err)
 	}
 	os.Exit(m.Run())
 }
 
-func UseNats(ctx context.Context) (nc *nats.Conn, js nats.JetStreamContext, err error) {
+func UseNats(node string) (nc *nats.Conn, err error) {
 	var auth nats.Option
 	var kp nkeys.KeyPair
 	if kp, err = nkeys.FromSeed([]byte(os.Getenv("NATS_NKEY"))); err != nil {
@@ -54,10 +49,13 @@ func UseNats(ctx context.Context) (nc *nats.Conn, js nats.JetStreamContext, err 
 	); err != nil {
 		return
 	}
+	var js nats.JetStreamContext
 	if js, err = nc.JetStream(
 		nats.PublishAsyncMaxPending(256),
-		nats.Context(ctx),
 	); err != nil {
+		return
+	}
+	if _, err = js.CreateKeyValue(&nats.KeyValueConfig{Bucket: fmt.Sprintf(`schedules_%s`, node)}); err != nil {
 		return
 	}
 	return

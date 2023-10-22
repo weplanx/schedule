@@ -65,6 +65,7 @@ func UseJetStream(nc *nats.Conn) (nats.JetStreamContext, error) {
 
 func UseKeyValue(values *common.Values, js nats.JetStreamContext) (nats.KeyValue, error) {
 	return js.CreateKeyValue(&nats.KeyValueConfig{
-		Bucket: fmt.Sprintf(`%s_schedules_%s`, values.Namespace, values.Node),
+		Bucket:      fmt.Sprintf(`schedules_%s`, values.Node),
+		Description: "Schedule message event publishing node",
 	})
 }

@@ -65,21 +65,21 @@ func (x *App) Run() (err error) {
 					return
 				}
 				if err = x.Set(key, option); err != nil {
-					x.Log.Error("KeyValuePutOp Set:fail",
+					x.Log.Error("schedule fail",
 						zap.String("key", key),
 						zap.Any("option", option),
 						zap.Error(err),
 					)
 					return
 				}
-				x.Log.Debug("KeyValuePutOp SetCron:ok",
+				x.Log.Debug("schedule ok",
 					zap.String("key", key),
 					zap.Any("option", option),
 				)
 				break
 			case "KeyValueDeleteOp":
 				x.Remove(key)
-				x.Log.Debug("KeyValueDeleteOp Remove:ok",
+				x.Log.Debug("schedule removed",
 					zap.String("key", key),
 				)
 				break
@@ -93,7 +93,7 @@ func (x *App) Run() (err error) {
 	if err = x.Ping(); err != nil {
 		return
 	}
-	x.Log.Info("Service started!")
+	x.Log.Info("service started!")
 	return
 }
 
@@ -119,7 +119,7 @@ func (x *App) Set(key string, option common.ScheduleOption) (err error) {
 
 func (x *App) SetJob(key string, c *cron.Cron, index int, job common.ScheduleJob) (err error) {
 	if _, err = c.AddFunc(job.Spec, func() {
-		subj := fmt.Sprintf(`%s.jobs.%s`, x.V.Namespace, x.V.Node)
+		subj := fmt.Sprintf(`jobs.%s`, x.V.Node)
 		var b []byte
 		if b, err = msgpack.Marshal(common.Job{
 			Key:    key,
@@ -130,14 +130,14 @@ func (x *App) SetJob(key string, c *cron.Cron, index int, job common.ScheduleJob
 			return
 		}
 		if err = x.Nats.Publish(subj, b); err != nil {
-			x.Log.Error("Publish:fail",
+			x.Log.Error("publish fail",
 				zap.String("key", key),
 				zap.Int("index", index),
 				zap.Error(err),
 			)
 			return
 		}
-		x.Log.Debug("Publish:ok",
+		x.Log.Debug("publish ok",
 			zap.String("key", key),
 			zap.Int("index", index),
 			zap.String("mode", job.Mode),
@@ -163,8 +163,8 @@ func (x *App) GetState(key string) []cron.Entry {
 }
 
 func (x *App) State() (err error) {
-	subj := fmt.Sprintf(`%s.schedules.%s`, x.V.Namespace, x.V.Node)
-	queue := fmt.Sprintf(`%s:schedules:%s`, x.V.Namespace, x.V.Node)
+	subj := fmt.Sprintf(`schedules.%s`, x.V.Node)
+	queue := fmt.Sprintf(`SCHEDULE_%s`, x.V.Node)
 	if _, err = x.Nats.QueueSubscribe(subj, queue, func(msg *nats.Msg) {
 		key := string(msg.Data)
 		var states []common.ScheduleState
@@ -182,15 +182,14 @@ func (x *App) State() (err error) {
 	}); err != nil {
 		return
 	}
-	x.Log.Debug("State:ok",
+	x.Log.Debug("state ok",
 		zap.String("subj", subj),
 	)
 	return
 }
 
 func (x *App) Ping() (err error) {
-	subj := fmt.Sprintf(`%s.schedules`, x.V.Namespace)
-	if _, err = x.Nats.Subscribe(subj, func(msg *nats.Msg) {
+	if _, err = x.Nats.Subscribe("schedules", func(msg *nats.Msg) {
 		if string(msg.Data) == x.V.Node {
 			msg.Respond([]byte("ok"))
 		}
