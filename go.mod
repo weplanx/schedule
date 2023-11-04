@@ -3,19 +3,19 @@ module github.com/weplanx/schedule
 go 1.21
 
 require (
-	github.com/caarlos0/env/v9 v9.0.0
+	github.com/caarlos0/env/v10 v10.0.0
 	github.com/google/wire v0.5.0
 	github.com/nats-io/nats.go v1.31.0
-	github.com/nats-io/nkeys v0.4.5
+	github.com/nats-io/nkeys v0.4.6
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/stretchr/testify v1.8.4
-	github.com/vmihailenco/msgpack/v5 v5.4.0
+	github.com/vmihailenco/msgpack/v5 v5.4.1
 	go.uber.org/zap v1.26.0
 )
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/klauspost/compress v1.17.1 // indirect
+	github.com/klauspost/compress v1.17.2 // indirect
 	github.com/kr/pretty v0.1.0 // indirect
 	github.com/nats-io/nuid v1.0.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect

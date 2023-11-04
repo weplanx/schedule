@@ -2,7 +2,7 @@ package bootstrap
 
 import (
 	"fmt"
-	"github.com/caarlos0/env/v9"
+	"github.com/caarlos0/env/v10"
 	"github.com/nats-io/nats.go"
 	"github.com/nats-io/nkeys"
 	"github.com/weplanx/schedule/common"
