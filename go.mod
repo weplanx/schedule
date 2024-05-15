@@ -5,7 +5,7 @@ go 1.22
 require (
 	github.com/caarlos0/env/v10 v10.0.0
 	github.com/google/wire v0.6.0
-	github.com/nats-io/nats.go v1.33.1
+	github.com/nats-io/nats.go v1.34.1
 	github.com/nats-io/nkeys v0.4.7
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/stretchr/testify v1.9.0
